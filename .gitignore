@@ -1,2 +1,5 @@
 venv
 shoppinglist/__pycache__".env" 
+migrations
+instance/__pycache__
+app/__pycache__
