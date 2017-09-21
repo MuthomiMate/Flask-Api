@@ -22,7 +22,7 @@ class Shoppinglist(db.Model):
 
     @staticmethod
     def get_all():
-        return shoppinglist.query.all()
+        return Shoppinglist.query.all()
 
     def delete(self):
         db.session.delete(self)
