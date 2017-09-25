@@ -11,7 +11,7 @@ class User(db.Model):
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     shoppinglists = db.relationship(
-        'Shoppingtlist', order_by='Shoppinglist.id', cascade="all, delete-orphan")
+        'Shoppinglist', order_by='Shoppinglist.id', cascade="all, delete-orphan")
 
     def __init__(self, email, password):
         """Initialize the user with an email and a password."""
