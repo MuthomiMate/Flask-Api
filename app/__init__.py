@@ -17,34 +17,55 @@ def create_app(config_name):
 	db.init_app(app)
 
 	@app.route('/shoppinglists/', methods=['POST', 'GET'])
-	def shoppinglists():
-		if request.method == "POST":
-			name = str(request.data.get('name', ''))
-			if name:
-				shoppinglist = Shoppinglist(name=name)
-				shoppinglist.save()
-				response = jsonify({
-					'id': shoppinglist.id,
-					'name': shoppinglist.name,
-					'date_created': shoppinglist.date_created,
-					'date_modified': shoppinglist.date_modified
-				})
-				response.status_code = 201
-				return response
-		else:
-			shoppinglists = Shoppinglist.get_all()
-			results = []
-			for shoppinglist in shoppinglists:
-				obj = {
-					'id': shoppinglist.id,
-					'name': shoppinglist.name,
-					'date_created': shoppinglist.date_created,
-					'date_modified': shoppinglist.date_modified
-				}
-				results.append(obj)
-			response = jsonify(results)
-			response.status_code = 200
-			return response
+    def shoppinglists():
+        # Get the access token from the header
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+
+        if access_token:
+         # Attempt to decode the token and get the User ID
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                # Go ahead and handle the request, the user is authenticated
+
+                if request.method == "POST":
+                    name = str(request.data.get('name', ''))
+                    if name:
+                        shoppinglist = Shoppinglist(name=name, created_by=user_id)
+                        shoppinglist.save()
+                        response = jsonify({
+                            'id': shoppinglist.id,
+                            'name': shoppinglist.name,
+                            'date_created': shoppinglist.date_created,
+                            'date_modified': shoppinglist.date_modified,
+                            'created_by': user_id
+                        })
+
+                        return make_response(response), 201
+
+                else:
+                    # GET all the shoppinglists created by this user
+                    shoppinglists = Shoppinglist.query.filter_by(created_by=user_id)
+                    results = []
+
+                    for shoppinglist in shoppinglists:
+                        obj = {
+                            'id': shoppinglist.id,
+                            'name': shoppinglist.name,
+                            'date_created': shoppinglist.date_created,
+                            'date_modified': shoppinglist.date_modified,
+                            'created_by': shoppinglist.created_by
+                        }
+                        results.append(obj)
+
+                    return make_response(jsonify(results)), 200
+            else:
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
+                }
+                return make_response(jsonify(response)), 401
 	@app.route('/shoppinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 	def shoppinglist_manipulation(id, **kwargs):
 		# retrieve a buckelist using it's ID
