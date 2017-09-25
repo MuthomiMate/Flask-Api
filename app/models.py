@@ -1,5 +1,8 @@
 from app import db
 from flask_bcrypt import Bcrypt
+from datetime import datetime, timedelta
+import jwt
+from flask import current_app
 
 class User(db.Model):
     """This class defines the users table """
