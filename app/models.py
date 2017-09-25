@@ -1,4 +1,36 @@
 from app import db
+from flask_bcrypt import Bcrypt
+
+class User(db.Model):
+    """This class defines the users table """
+
+    __tablename__ = 'users'
+
+    # Define the columns of the users table, starting with the primary key
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(256), nullable=False, unique=True)
+    password = db.Column(db.String(256), nullable=False)
+    shoppinglists = db.relationship(
+        'Shoppingtlist', order_by='Shoppinglist.id', cascade="all, delete-orphan")
+
+    def __init__(self, email, password):
+        """Initialize the user with an email and a password."""
+        self.email = email
+        self.password = Bcrypt().generate_password_hash(password).decode()
+
+    def password_is_valid(self, password):
+        """
+        Checks the password against it's hash to validates the user's password
+        """
+        return Bcrypt().check_password_hash(self.password, password)
+
+    def save(self):
+        """Save a user to the database.
+        This includes creating a new user and editing one.
+        """
+        db.session.add(self)
+        db.session.commit()
+
 
 class Shoppinglist(db.Model):
     """This class represents the shoppinglist table."""
@@ -11,6 +43,7 @@ class Shoppinglist(db.Model):
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
+    created_by = db.Column(db.Integer, db.ForeignKey(User.id))
 
     def __init__(self, name):
         """initialize with name."""
@@ -22,7 +55,7 @@ class Shoppinglist(db.Model):
 
     @staticmethod
     def get_all():
-        return Shoppinglist.query.all()
+        return Shoppinglist.query.filter_by(created_by=user_id)
 
     def delete(self):
         db.session.delete(self)
@@ -30,3 +63,4 @@ class Shoppinglist(db.Model):
 
     def __repr__(self):
         return "<shoppinglist: {}>".format(self.name)
+
