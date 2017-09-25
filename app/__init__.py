@@ -1,22 +1,29 @@
-from flask_api import FlaskAPI
+import json
+from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
 
+from flask import request, jsonify, abort, make_response
+
 # local import
+
 from instance.config import app_config
 
-# initialize sql-alchemy
+# For password hashing
+from flask_bcrypt import Bcrypt
+
+# initialize db
 db = SQLAlchemy()
 
-from flask import request, jsonify, abort
-def create_app(config_name):
-	from app.models import Shoppinglist
-	app = FlaskAPI(__name__, instance_relative_config=True)
-	app.config.from_object(app_config['development'])
-	app.config.from_pyfile('config.py')
-	app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-	db.init_app(app)
 
-	@app.route('/shoppinglists/', methods=['POST', 'GET'])
+def create_app(config_name):
+    from app.models import Shoppinglist, User
+    app = FlaskAPI(__name__, instance_relative_config=True)
+    app.config.from_object(app_config['development'])
+    app.config.from_pyfile('config.py')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    db.init_app(app)
+
+    @app.route('/shoppinglists/', methods=['POST', 'GET'])
     def shoppinglists():
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
@@ -66,7 +73,7 @@ def create_app(config_name):
                     'message': message
                 }
                 return make_response(jsonify(response)), 401
-	@app.route('/shoppinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+    @app.route('/shoppinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
     def shoppinglist_manipulation(id, **kwargs):
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
@@ -125,7 +132,7 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
-	# import the authentication blueprint and register it on the app
-	from .auth import auth_blueprint
-	app.register_blueprint(auth_blueprint)
-	return app
+    # import the authentication blueprint and register it on the app
+    from .auth import auth_blueprint
+    app.register_blueprint(auth_blueprint)
+    return app
