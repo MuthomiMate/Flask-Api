@@ -133,12 +133,12 @@ def create_app(config_name):
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
-    @app.route('/shoppinglists/1/items/', methods=['POST', 'GET'])
-    def shoppinglistsitems():
+    @app.route('/shoppinglists/<int:shoppinglist_id>/items/', methods=['POST', 'GET'])
+    def shoppinglistsitems(shoppinglist_id):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
-        shoppinglist_id=1
+        
 
         if access_token:
          # Attempt to decode the token and get the User ID
@@ -155,7 +155,7 @@ def create_app(config_name):
                             'id': shoppinglistitem.id,
                             'name': shoppinglistitem.name,
                             'date_created': shoppinglistitem.date_created,
-                            'date_modified': shoppinglist.date_modified,
+                            'date_modified': shoppinglistitem.date_modified,
                             'shoppinglistname': shoppinglist_id
                         })
 
@@ -183,6 +183,66 @@ def create_app(config_name):
                 response = {
                     'message': message
                 }
+                return make_response(jsonify(response)), 401
+
+    @app.route('/shoppinglists/<int:shoppinglist_id>/items/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+    def shoppinglistitem_manipulation(id, shoppinglist_id, **kwargs):
+        # get the access token from the authorization header
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+
+        if access_token:
+            # Get the user id related to this access token
+            user_id = User.decode_token(access_token)
+
+            if not isinstance(user_id, str):
+                # If the id is not a string(error), we have a user id
+                # Get the shoppinglist with the id specified from the URL (<int:id>)
+                shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
+                if not shoppinglistitems:
+                    # There is no shoppinglist with this ID for this User, so
+                    # Raise an HTTPException with a 404 not found status code
+                    abort(404)
+
+                if request.method == "DELETE":
+                    # delete the shoppinglist using our delete method
+                    shoppinglistitems.delete()
+                    return {
+                        "message": "item {} deleted".format(shoppinglistitems.id)
+                    }, 200
+
+                elif request.method == 'PUT':
+                    # Obtain the new name of the shoppinglist from the request data
+                    name = str(request.data.get('name', ''))
+
+                    shoppinglistitems.name = name
+                    shoppinglistitems.save()
+
+                    response = {
+                        'id': shoppinglistitems.id,
+                        'name': shoppinglistitems.name,
+                        'date_created': shoppinglistitems.date_created,
+                        'date_modified': shoppinglistitems.date_modified,
+                        'shoppinglistname': shoppinglistitems.shoppinglistname
+                    }
+                    return make_response(jsonify(response)), 200
+                else:
+                    # Handle GET request, sending back the shoppinglist to the user
+                    response = {
+                        'id': shoppinglistitems.id,
+                        'name': shoppinglistitems.name,
+                        'date_created': shoppinglistitems.date_created,
+                        'date_modified': shoppinglistitems.date_modified,
+                        'shoppinglistname': shoppinglistitems.shoppinglist_id
+                    }
+                    return make_response(jsonify(response)), 200
+            else:
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
 
     # import the authentication blueprint and register it on the app

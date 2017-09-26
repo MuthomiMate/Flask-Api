@@ -10,6 +10,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
+        self.shoppinglist = {'name': 'Back to school'}
         self.shoppinglistitem = {'name': 'bag'}
        
 
@@ -131,7 +132,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         rv = self.client().post(
-            '/shoppinglists/1/items',
+            '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'Eat, pray and love'})
         self.assertEqual(rv.status_code, 201)
