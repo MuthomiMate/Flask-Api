@@ -83,6 +83,8 @@ class Shoppinglist(db.Model):
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
     created_by = db.Column(db.Integer, db.ForeignKey(User.id))
+    shoppinglistsitems = db.relationship(
+        'Shoppinglistitems', order_by='Shoppinglistitems.id', cascade="all, delete-orphan")
 
     def __init__(self, name, created_by):
         """initialize with name."""
@@ -118,10 +120,10 @@ class Shoppinglistitems(db.Model):
         onupdate=db.func.current_timestamp())
     shoppinglistname = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
 
-    def __init__(self, name, created_by):
+    def __init__(self, name, shoppinglistname):
         """initialize with name."""
         self.name = name
-        self.created_by =created_by
+        self.shoppinglistname =shoppinglistname
 
     def save(self):
         db.session.add(self)
@@ -129,7 +131,7 @@ class Shoppinglistitems(db.Model):
 
     @staticmethod
     def get_all():
-        return Shoppinglistitems.query.filter_by(created_by=user_id)
+        return Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id)
 
     def delete(self):
         db.session.delete(self)

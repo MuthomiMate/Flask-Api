@@ -16,7 +16,7 @@ db = SQLAlchemy()
 
 
 def create_app(config_name):
-    from app.models import Shoppinglist, User
+    from app.models import Shoppinglist, User, Shoppinglistitems
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config['development'])
     app.config.from_pyfile('config.py')
@@ -132,6 +132,59 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
+
+    @app.route('/shoppinglists/1/items/', methods=['POST', 'GET'])
+    def shoppinglistsitems():
+        # Get the access token from the header
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+        shoppinglist_id=1
+
+        if access_token:
+         # Attempt to decode the token and get the User ID
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                # Go ahead and handle the request, the user is authenticated
+
+                if request.method == "POST":
+                    name = str(request.data.get('name', ''))
+                    if name:
+                        shoppinglistitem = Shoppinglistitems(name=name, shoppinglistname=shoppinglist_id)
+                        shoppinglistitem.save()
+                        response = jsonify({
+                            'id': shoppinglistitem.id,
+                            'name': shoppinglistitem.name,
+                            'date_created': shoppinglistitem.date_created,
+                            'date_modified': shoppinglist.date_modified,
+                            'shoppinglistname': shoppinglist_id
+                        })
+
+                        return make_response(response), 201
+
+                else:
+                    # GET all the shoppinglists created by this user
+                    shoppinglistsitems = Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id)
+                    results = []
+
+                    for shoppinglistitem in shoppinglistsitems:
+                        obj = {
+                            'id': shoppinglistitem.id,
+                            'name': shoppinglistitem.name,
+                            'date_created': shoppinglistitem.date_created,
+                            'date_modified': shoppinglistitem.date_modified,
+                            'shoppinglistname': shoppinglist_id
+                        }
+                        results.append(obj)
+
+                    return make_response(jsonify(results)), 200
+            else:
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
+                }
+                return make_response(jsonify(response)), 401
+
     # import the authentication blueprint and register it on the app
     from .auth import auth_blueprint
     app.register_blueprint(auth_blueprint)
