@@ -104,3 +104,37 @@ class Shoppinglist(db.Model):
     def __repr__(self):
         return "<shoppinglist: {}>".format(self.name)
 
+
+class Shoppinglistitems(db.Model):
+    """This class represents the shoppinglist table."""
+
+    __tablename__ = 'shoppinglistsitems'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    date_modified = db.Column(
+        db.DateTime, default=db.func.current_timestamp(),
+        onupdate=db.func.current_timestamp())
+    shoppinglistname = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
+
+    def __init__(self, name, created_by):
+        """initialize with name."""
+        self.name = name
+        self.created_by =created_by
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @staticmethod
+    def get_all():
+        return Shoppinglistitems.query.filter_by(created_by=user_id)
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self):
+        return "<shoppinglistitems: {}>".format(self.name)
+
