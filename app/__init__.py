@@ -53,19 +53,45 @@ def create_app(config_name):
                 else:
                     # GET all the shoppinglists created by this user
                     shoppinglists = Shoppinglist.query.filter_by(created_by=user_id)
-                    results = []
 
-                    for shoppinglist in shoppinglists:
-                        obj = {
+                    # GET request
+                    # initialize search query, limit and page_no
+                    search_query = request.args.get("q")
+                    limit = int(request.args.get('limit', 1))
+                    page_no = int(request.args.get('page', 1))
+                    results = []
+                    if search_query:
+                        search_results = Shoppinglist.query.filter(Shoppinglist.name.ilike(
+                            '%' + search_query + '%')).filter_by(created_by=user_id).all()
+                        if search_results:
+                            for shoppinglist in search_results:
+                                obj={
+                                'id': shoppinglist.id,
+                                'name': shoppinglist.name,
+                                'date_created': shoppinglist.date_created,
+                                'date_modified': shoppinglist.date_modified,
+                                'created_by': shoppinglist.created_by
+                                }
+                                results.append(obj)
+                            return make_response(jsonify(results)), 200
+
+                        # search_results does not contain anything, status code=Not found
+                        response = {
+                            'message': "Shopping list name does not exist"
+                        }
+                        return make_response(jsonify(response)), 404
+                    else:
+                        for shoppinglist in shoppinglists:
+                            obj={
                             'id': shoppinglist.id,
                             'name': shoppinglist.name,
                             'date_created': shoppinglist.date_created,
                             'date_modified': shoppinglist.date_modified,
                             'created_by': shoppinglist.created_by
-                        }
-                        results.append(obj)
+                            }
+                            results.append(obj)
+                        return make_response(jsonify(results)), 200
 
-                    return make_response(jsonify(results)), 200
             else:
                 # user is not legit, so the payload is an error message
                 message = user_id
