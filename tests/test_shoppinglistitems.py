@@ -10,8 +10,8 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.shoppinglist = {'name': 'Back to school'}
-        self.shoppinglistitem = {'name': 'bag'}
+        self.shoppinglist = {'name': 'vacation'}
+        self.shoppinglistitem = {'name': 'Go to Borabora for vacation'}
        
 
         # binds the app to the current context
@@ -44,6 +44,11 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # create a shoppinglist by making a POST request
+        self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        # create a shoppinglistitem by making a POST request
         res = self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
@@ -58,6 +63,11 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # create a shoppinglist by making a POST request
+        self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        # create a shoppinglistitem by making a POST request
         res = self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
@@ -77,6 +87,13 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        
 
         rv = self.client().post(
             '/shoppinglists/1/items/',
@@ -101,6 +118,13 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
+        # create a shoppinglist by making a POST request
+        self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        
+
         # first, we create a shoppinglist by making a POST request
         rv = self.client().post(
             '/shoppinglists/1/items/',
@@ -121,15 +145,22 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
 
         # finally, we get the edited shoppinglist to see if it is actually edited.
         results = self.client().get(
-            '/shoppinglists/{}'.format(results['id']),
+            '/shoppinglists/1/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('Dont just eat', str(results.data))
 
     def test_shoppinglistitem_deletion(self):
-        """Test API can delete an existing shoppinglist. (DELETE request)."""
+        """Test API can delete an existing shoppingitem. (DELETE request)."""
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        
 
         rv = self.client().post(
             '/shoppinglists/1/items/',

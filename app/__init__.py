@@ -233,7 +233,7 @@ def create_app(config_name):
                         'name': shoppinglistitems.name,
                         'date_created': shoppinglistitems.date_created,
                         'date_modified': shoppinglistitems.date_modified,
-                        'shoppinglistname': shoppinglistitems.shoppinglist_id
+                        'shoppinglistname': shoppinglistitems.shoppinglistname
                     }
                     return make_response(jsonify(response)), 200
             else:
