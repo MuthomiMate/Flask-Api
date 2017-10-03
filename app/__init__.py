@@ -81,16 +81,25 @@ def create_app(config_name):
                         }
                         return make_response(jsonify(response)), 404
                     else:
-                        for shoppinglist in shoppinglists:
-                            obj={
-                            'id': shoppinglist.id,
-                            'name': shoppinglist.name,
-                            'date_created': shoppinglist.date_created,
-                            'date_modified': shoppinglist.date_modified,
-                            'created_by': shoppinglist.created_by
-                            }
-                            results.append(obj)
-                        return make_response(jsonify(results)), 200
+                        limit = int(request.args.get('limit', 2))
+                        page = int(request.args.get('page', 1))
+                        paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
+                        order_by(Shoppinglist.name.asc()).paginate(page, limit)
+                        results=[]
+                        if not shoppinglists:
+                            response = jsonify({
+                                "message": "You do not have  any shopping list"
+                            })
+                            return make_response(response), 404
+                        else:
+                            for shoppinglist in paginated_lists.items:
+                                obj={
+                                'name': shoppinglist.name,
+                                'date_created': shoppinglist.date_created,
+                                'date_modified': shoppinglist.date_modified,
+                                }
+                                results.append(obj)
+                            return make_response(jsonify(results)), 200
 
             else:
                 # user is not legit, so the payload is an error message
@@ -189,6 +198,7 @@ def create_app(config_name):
 
                 else:
                     # GET all the shoppinglists created by this user
+
                     shoppinglistsitems = Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id)
                     results = []
 
