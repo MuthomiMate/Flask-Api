@@ -81,12 +81,13 @@ def create_app(config_name):
                         }
                         return make_response(jsonify(response)), 404
                     else:
+                        shoppingliss = Shoppinglist.query.filter_by(created_by=user_id)
                         limit = int(request.args.get('limit', 2))
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
                         order_by(Shoppinglist.name.asc()).paginate(page, limit)
                         results=[]
-                        if not shoppinglists:
+                        if shoppingliss == '':
                             response = jsonify({
                                 "message": "You do not have  any shopping list"
                             })
@@ -99,6 +100,23 @@ def create_app(config_name):
                                 'date_modified': shoppinglist.date_modified,
                                 }
                                 results.append(obj)
+                            nextPage = 'None'
+                            prevPage = 'None'
+                            if paginated_lists.has_next:
+                                next_page = '/shoppinglists/?limit={}&page={}'.format(
+                                    str(limit),
+                                    str(page_no + 1)
+                                )
+                            if paginated_lists.has_prev:
+                                prev_page = '/shoppinglists/?limit={}&page={}'.format(
+                                    str(limit),
+                                    str(page_no - 1)
+                                )
+                            response = {
+                                'shopping lists': results,
+                                'previous page': prevPage,
+                                'next page': nextPage
+                            }
                             return make_response(jsonify(results)), 200
 
             else:
