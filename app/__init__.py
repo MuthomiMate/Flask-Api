@@ -215,6 +215,11 @@ def create_app(config_name):
 
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
+                    if name == '':
+                        response = {
+                        'message':'Item name cannot be empty'
+                        }
+                        return make_response(jsonify(reponse)), 404
                     if name:
                         shoppinglistitem = Shoppinglistitems(name=name, shoppinglistname=shoppinglist_id)
                         shoppinglistitem.save()
