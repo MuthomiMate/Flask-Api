@@ -12,11 +12,12 @@ class RegistrationView(MethodView):
 
     def post(self):
         """Handle POST request for this view. Url ---> /auth/register"""
+        name= str(request.data.get('name', ''))
         email= str(request.data.get('email', ''))
         password= str(request.data.get('password', ''))
-        if email == '' and password == '':
+        if email[] == '' and password == '' and name == '':
             response = {
-            'message': 'Email and Password cannot be empty'
+            'message': 'Email, Password and name cannot be empty'
             }
             return make_response(jsonify(response)), 404
         regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
@@ -40,9 +41,10 @@ class RegistrationView(MethodView):
             try:
                 post_data = request.data
                 # Register the user
+                name = post_data['name']
                 email = post_data['email']
                 password = post_data['password']
-                user = User(email=email, password=password)
+                user = User(name=name, email=email, password=password)
                 user.save()
 
                 response = {
