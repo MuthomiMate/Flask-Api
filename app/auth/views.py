@@ -11,6 +11,15 @@ class RegistrationView(MethodView):
 
     def post(self):
         """Handle POST request for this view. Url ---> /auth/register"""
+        email= str(request.data.get('email', ''))
+        password= str(request.data.get('password', ''))
+        if email == '' and password == '':
+            response = {
+            'message': 'Email and Password cannot be empty'
+            }
+            return make_response(jsonify(response)), 404
+        regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+        regPass = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
 
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
