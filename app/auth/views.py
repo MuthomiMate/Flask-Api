@@ -26,6 +26,11 @@ class RegistrationView(MethodView):
             'message' : 'Enter a correct email address'
             }
             return make_response(jsonify(response)),404
+        if not re.search(regPass, password):
+            response = {
+            'message' : 'Password should be at least 8 characters and should contain both numbers and letters'
+            }
+            return make_response(jsonify(response)), 404
 
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
