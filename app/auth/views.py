@@ -5,6 +5,7 @@ from . import auth_blueprint
 from flask.views import MethodView
 from flask import make_response, request, jsonify
 from app.models import User
+import re
 
 class RegistrationView(MethodView):
     """This class registers a new user."""
@@ -20,6 +21,11 @@ class RegistrationView(MethodView):
             return make_response(jsonify(response)), 404
         regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         regPass = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+        if not re.search(regex, email):
+            response = {
+            'message' : 'Enter a correct email address'
+            }
+            return make_response(jsonify(response)),404
 
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
