@@ -1,5 +1,6 @@
 import json
 from flask_api import FlaskAPI, status
+import re
 from flask_sqlalchemy import SQLAlchemy
 
 from flask import request, jsonify, abort, make_response
@@ -42,18 +43,25 @@ def create_app(config_name):
                         'message' : 'Name key and Value required'
                         }
                         return make_response(jsonify(response)), 404
-                    if name:
-                        shoppinglist = Shoppinglist(name=name, created_by=user_id)
-                        shoppinglist.save()
-                        response = jsonify({
-                            'id': shoppinglist.id,
-                            'name': shoppinglist.name,
-                            'date_created': shoppinglist.date_created,
-                            'date_modified': shoppinglist.date_modified,
-                            'created_by': user_id
-                        })
 
-                        return make_response(response), 201
+                    if name:
+                        if re.match("[a-zA-Z0-9- .]+$", name):
+                            shoppinglist = Shoppinglist(name=name, created_by=user_id)
+                            shoppinglist.save()
+                            response = jsonify({
+                                'id': shoppinglist.id,
+                                'name': shoppinglist.name,
+                                'date_created': shoppinglist.date_created,
+                                'date_modified': shoppinglist.date_modified,
+                                'created_by': user_id
+                            })
+
+                            return make_response(response), 201
+                        else:
+                            response={
+                            'message' : 'Name does not contain special characters'
+                            }
+                            return make_response(jsonify(response)), 404
 
                 else:
                     # GET all the shoppinglists created by this user
