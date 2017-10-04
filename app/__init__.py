@@ -37,6 +37,11 @@ def create_app(config_name):
 
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
+                    if name == '':
+                        response={
+                        'message' : 'Name key and Value required'
+                        }
+                        return make_response(jsonify(response)), 404
                     if name:
                         shoppinglist = Shoppinglist(name=name, created_by=user_id)
                         shoppinglist.save()
@@ -81,18 +86,19 @@ def create_app(config_name):
                         }
                         return make_response(jsonify(response)), 404
                     else:
-                        shoppingliss = Shoppinglist.query.filter_by(created_by=user_id)
+                        shoppingliss = Shoppinglist.query.filter_by(created_by=user_id).all()
+                        if not shoppingliss:
+                            response = jsonify({
+                                "message": "You do not have  any shopping list"
+                            })
+                            return make_response(response), 404
                         limit = int(request.args.get('limit', 2))
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
                         order_by(Shoppinglist.name.asc()).paginate(page, limit)
                         results=[]
-                        if shoppingliss == '':
-                            response = jsonify({
-                                "message": "You do not have  any shopping list"
-                            })
-                            return make_response(response), 404
-                        else:
+                        
+                        if shoppingliss:
                             for shoppinglist in paginated_lists.items:
                                 obj={
                                 'name': shoppinglist.name,
