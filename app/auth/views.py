@@ -1,8 +1,9 @@
 # /app/auth/views.py
 
-from . import auth_blueprint
+
 
 from flask.views import MethodView
+from . import auth_blueprint
 from flask import make_response, request, jsonify
 from app.models import User
 import re
@@ -12,10 +13,9 @@ class RegistrationView(MethodView):
 
     def post(self):
         """Handle POST request for this view. Url ---> /auth/register"""
-        name= str(request.data.get('name', ''))
         email= str(request.data.get('email', ''))
         password= str(request.data.get('password', ''))
-        if email[] == '' and password == '' and name == '':
+        if email == '' and password == '':
             response = {
             'message': 'Email, Password and name cannot be empty'
             }
@@ -41,10 +41,9 @@ class RegistrationView(MethodView):
             try:
                 post_data = request.data
                 # Register the user
-                name = post_data['name']
                 email = post_data['email']
                 password = post_data['password']
-                user = User(name=name, email=email, password=password)
+                user = User(email=email, password=password)
                 user.save()
 
                 response = {
