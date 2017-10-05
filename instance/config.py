@@ -5,7 +5,7 @@ class Config(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET = 'mmmmmmmm0786uuu'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:MUTHOMI@localhost:5432/shoppinglist'
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
 class DevelopmentConfig(Config):
     """Configurations for Development."""
