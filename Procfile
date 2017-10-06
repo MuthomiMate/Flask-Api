@@ -1,3 +1,3 @@
 
-web: gunicrn run:apps
+web: gunicorn run:apps
 heroku ps:scale web=0
