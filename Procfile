@@ -1,3 +1,3 @@
 
-web: python run.py ${PORT}
+web: gunicrn run:apps
 heroku ps:scale web=0
