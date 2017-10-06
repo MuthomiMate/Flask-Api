@@ -12,7 +12,7 @@ before_script:
   - psql -c 'CREATE DATABASE test_db;' -U postgres
 # command to run tests
 script: 
-  nosetests --with-coverage --cover-package=app && coverage report
+  nosetests --with-coverage --cover-package=tests && coverage report
 
 after_success:
   - coveralls
