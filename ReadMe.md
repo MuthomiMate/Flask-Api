@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/MuthomiMate/Flask-Api.svg?branch=dev)](https://travis-ci.org/MuthomiMate/Flask-Api)
+
 # FLASK API
 API for shopping list application
 
