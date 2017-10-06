@@ -1,38 +1,37 @@
-Shoppinglist api
+# FLASK API
+API for shopping list application
 
-Flask API for shopping list application
-
-Installation and setup
+## Installation and setup
 
 Clone this repo
 
 https://github.com/MuthomiMate/Flask-Api.git
-Navigate to the shoppinglist-api directory:
+###### Navigate to the shoppinglist-api directory:
 
 cd Flask-Api
-Set Up environment Variables
+###### Set Up environment Variables
 
 source .env
-Install dependencies:
+###### Install dependencies:
 
 pip install -r requirements.txt
-Initialize, migrate and update the database:
+###### Initialize, migrate and update the database:
 
 python manage.py db init
 python manage.py db migrate
 python manage.py db upgrade
-Test the application without coverage:
+###### Test the application without coverage:
 
 python manage.py test
-Test the application with coverage:
+###### Test the application with coverage:
 
 nosetests --with-coverage --cover-package=tests && coverage report
-Running application
+###### Running application
 
 To start application:
 
 python run.py
-Access the endpoints 
+## Access the endpoints 
 
 Endpoints
 
