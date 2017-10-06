@@ -16,10 +16,11 @@ source .env
 
 pip install -r requirements.txt
 ###### Initialize, migrate and update the database:
-
+```
 python manage.py db init
 python manage.py db migrate
 python manage.py db upgrade
+```
 ###### Test the application without coverage:
 
 python manage.py test
@@ -49,3 +50,12 @@ Endpoints
 |/shoppinglists/shoppinglist_id/items/int:id| PUT|	Edit a shopping item|	TRUE
 |/shoppinglists/shoppinglist_id/items/int:id|	DELETE|	Delete a shoppinglist item|	TRUE
 |/shoppinglists/ishoppinglist_id/items/int:id|	GET| Get a single shoppinglist item|	TRUE
+
+## Options
+
+|Method	|Description|
+|-------|-----------|
+|GET|	Retrieves a resource(s)|
+|POST|	Creates a new resource|
+|PUT|	Edits an existing resource|
+|DELETE|	Deletes an existing resource|
