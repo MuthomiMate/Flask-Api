@@ -39,3 +39,13 @@ Endpoints
 |------------|----------|---------------|--------------|
 |/auth/register/|	POST	|User registers|	FALSE|
 |/auth/login/	|POST	|User login	|FALSE
+|/shoppinglists/|	POST|	Creates shopping list|	TRUE
+|/shoppinglists/|	GET	|Get all shopping list|	TRUE
+|/shoppinglists/int:id|	PUT	|Edit a shopping list|	TRUE
+|/shoppinglists/int:id|	DELETE|	Delete a shopping list|	TRUE
+|/shoppinglists/int:id|	GET	|Get a shopping list|	TRUE
+|/shoppinglists/int:shoppinglist_id/items/|	POST|	Create a shoppinglist item|	TRUE
+|/shoppinglists/int:shoppinglist_id/items/|	GET	|Get all shopping items in a shopping list|	TRUE
+|/shoppinglists/shoppinglist_id/items/int:id| PUT|	Edit a shopping item|	TRUE
+|/shoppinglists/shoppinglist_id/items/int:id|	DELETE|	Delete a shoppinglist item|	TRUE
+|/shoppinglists/ishoppinglist_id/items/int:id|	GET| Get a single shoppinglist item|	TRUE
