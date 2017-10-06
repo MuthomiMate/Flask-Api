@@ -14,7 +14,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:MUTHOMI@localhost:5432/flask_api'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:MUTHOMI@localhost:5432/flask_api' or 'sqlite:///: memory'
     DEBUG = True
 
 class StagingConfig(Config):
