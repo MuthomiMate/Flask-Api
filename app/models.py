@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime, timedelta
 import jwt
 from flask import current_app
+import os
 
 class User(db.Model):
     """This class defines the users table """
@@ -36,6 +37,7 @@ class User(db.Model):
 
     def generate_token(self, user_id):
         """ Generates the access token"""
+        app_secret = os.getenv("SECRET")
 
         try:
             # set up a payload with an expiration time
@@ -47,7 +49,7 @@ class User(db.Model):
             # create the byte string token using the payload and the SECRET key
             jwt_string = jwt.encode(
                 payload,
-                current_app.config.get('SECRET'),
+                app_secret,
                 algorithm='HS256'
             )
             return jwt_string
