@@ -37,7 +37,7 @@ class User(db.Model):
 
     def generate_token(self, user_id):
         """ Generates the access token"""
-        app_secret = os.getenv('SECRET')
+        app_secret = os.getenv('SECRET', 'mmmmmmmm0786uuu')
 
         try:
             # set up a payload with an expiration time
