@@ -129,7 +129,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         rv = self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat, pray and love'})
+            data={'name': 'Eat pray and love'})
         self.assertEqual(rv.status_code, 201)
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
@@ -165,7 +165,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         rv = self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat, pray and love'})
+            data={'name': 'Eat pray and love'})
         self.assertEqual(rv.status_code, 201)
         # get the shoppinglist in json
         results = json.loads(rv.data.decode())

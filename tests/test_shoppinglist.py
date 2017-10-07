@@ -113,7 +113,7 @@ class ShoppinglistTestCase(unittest.TestCase):
             '/shoppinglists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),
             data={
-                "name": "Dont just eat, but also pray and love :-)"
+                "name": "Dont"
             })
         self.assertEqual(rv.status_code, 200)
 
@@ -121,7 +121,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         results = self.client().get(
             '/shoppinglists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
-        self.assertIn('Dont just eat', str(results.data))
+        self.assertIn('Dont', str(results.data))
 
     def test_shoppinglist_deletion(self):
         """Test API can delete an existing shoppinglist. (DELETE request)."""
