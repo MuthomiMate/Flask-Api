@@ -231,19 +231,26 @@ def create_app(config_name):
                         response = {
                         'message':'Item name cannot be empty'
                         }
-                        return make_response(jsonify(reponse)), 404
-                    if name:
-                        shoppinglistitem = Shoppinglistitems(name=name, shoppinglistname=shoppinglist_id)
-                        shoppinglistitem.save()
-                        response = jsonify({
-                            'id': shoppinglistitem.id,
-                            'name': shoppinglistitem.name,
-                            'date_created': shoppinglistitem.date_created,
-                            'date_modified': shoppinglistitem.date_modified,
-                            'shoppinglistname': shoppinglist_id
-                        })
+                        return make_response(jsonify(response)), 404
 
-                        return make_response(response), 201
+                    if name:
+                        if re.match("[a-zA-Z0-9- .]+$", name):
+                            shoppinglistitem = Shoppinglistitems(name=name, shoppinglistname=shoppinglist_id)
+                            shoppinglistitem.save()
+                            response = jsonify({
+                                'id': shoppinglistitem.id,
+                                'name': shoppinglistitem.name,
+                                'date_created': shoppinglistitem.date_created,
+                                'date_modified': shoppinglistitem.date_modified,
+                                'shoppinglistname': shoppinglist_id
+                            })
+
+                            return make_response(response), 201
+                        else:
+                            response = {
+                                'message' : 'name cannot contain special characters'
+                            }
+                            return make_response(jsonify(response)), 404
 
                 else:
                     # GET all the shoppinglists created by this user
