@@ -169,18 +169,30 @@ def create_app(config_name):
                 elif request.method == 'PUT':
                     # Obtain the new name of the shoppinglist from the request data
                     name = str(request.data.get('name', ''))
+                    if name == '':
+                        response = {
+                            'message' : 'Name cannot be empty'
+                        }
+                        return make_response(jsonify(response)), 404
+                    if name:
+                        if re.match("[a-zA-Z0-9- .]+$", name):
+                            shoppinglist.name = name
+                            shoppinglist.save()
 
-                    shoppinglist.name = name
-                    shoppinglist.save()
+                            response = {
+                                'id': shoppinglist.id,
+                                'name': shoppinglist.name,
+                                'date_created': shoppinglist.date_created,
+                                'date_modified': shoppinglist.date_modified,
+                                'created_by': shoppinglist.created_by
+                            }
+                            return make_response(jsonify(response)), 200
+                        else:
+                            response = {
+                                'message' : 'Special characters not allowed'
 
-                    response = {
-                        'id': shoppinglist.id,
-                        'name': shoppinglist.name,
-                        'date_created': shoppinglist.date_created,
-                        'date_modified': shoppinglist.date_modified,
-                        'created_by': shoppinglist.created_by
-                    }
-                    return make_response(jsonify(response)), 200
+                            }
+                            return make_response(jsonify(response)), 404
                 else:
                     # Handle GET request, sending back the shoppinglist to the user
                     response = {
