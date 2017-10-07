@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/MuthomiMate/Flask-Api.svg?branch=dev)](https://travis-ci.org/MuthomiMate/Flask-Api)
 [![Coverage Status](https://coveralls.io/repos/github/MuthomiMate/Flask-Api/badge.svg?branch=dev)](https://coveralls.io/github/MuthomiMate/Flask-Api?branch=dev)
+[![Code Health](https://landscape.io/github/MuthomiMate/Flask-Api/dev/landscape.svg?style=flat)](https://landscape.io/github/MuthomiMate/Flask-Api/dev)
 
 # FLASK API
 API for shopping list application
