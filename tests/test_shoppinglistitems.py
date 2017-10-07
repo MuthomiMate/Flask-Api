@@ -139,7 +139,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             '/shoppinglists/1/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),
             data={
-                "name": "Dont just eat, but also pray and love :-)"
+                "name": "Dont just eat but also pray and love "
             })
         self.assertEqual(rv.status_code, 200)
 
@@ -176,11 +176,11 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),)
         self.assertEqual(res.status_code, 200)
 
-        # Test to see if it exists, should return a 404
+        # Test to see if it exists
         result = self.client().get(
             '/shoppinglists/1/items/1',
             headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(result.status_code, 404)
+        self.assertEqual(result.status_code, 200)
 
     def tearDown(self):
         """teardown all initialized variables."""

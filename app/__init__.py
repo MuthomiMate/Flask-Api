@@ -24,6 +24,29 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
 
+    @app.errorhandler(404)
+    def not_found(error):
+        response = {
+            'message' : 'Page not found'
+        }
+        return make_response(jsonify(response)), 404
+
+    @app.errorhandler(405)
+    def not_found(error):
+        response = {
+            'message' : 'Method not allowed'
+        }
+        return make_response(jsonify(response)), 404
+
+    @app.errorhandler(500)
+    def not_found(error):
+        response = {
+            'message' : 'Internal Server Error'
+        }
+        return make_response(jsonify(response)), 404
+
+   
+
     @app.route('/shoppinglists/', methods=['POST', 'GET'])
     def shoppinglists():
         # Get the access token from the header
@@ -155,9 +178,10 @@ def create_app(config_name):
                 # Get the shoppinglist with the id specified from the URL (<int:id>)
                 shoppinglist = Shoppinglist.query.filter_by(id=id).first()
                 if not shoppinglist:
-                    # There is no shoppinglist with this ID for this User, so
-                    # Raise an HTTPException with a 404 not found status code
-                    abort(404)
+                    response = {
+                        'message' : 'That shoppinglists does not exist'
+                    }
+                    return make_response(jsonify(response))
 
                 if request.method == "DELETE":
                     # delete the shoppinglist using our delete method
@@ -173,26 +197,27 @@ def create_app(config_name):
                         response = {
                             'message' : 'Name cannot be empty'
                         }
+                        return make_response(jsonify(response))
+                    if re.match("[a-zA-Z0-9- .]+$", name):
+                        shoppinglist.name = name
+                        shoppinglist.save()
+
+                        response = {
+                            'id': shoppinglist.id,
+                            'name': shoppinglist.name,
+                            'date_created': shoppinglist.date_created,
+                            'date_modified': shoppinglist.date_modified,
+                            'created_by': shoppinglist.created_by
+                        }
+                        return make_response(jsonify(response)), 200
+                    else:
+                        response = {
+                            'message' : 'Name should not have special characters'
+                        }
                         return make_response(jsonify(response)), 404
-                    if name:
-                        if re.match("[a-zA-Z0-9- .]+$", name):
-                            shoppinglist.name = name
-                            shoppinglist.save()
-
-                            response = {
-                                'id': shoppinglist.id,
-                                'name': shoppinglist.name,
-                                'date_created': shoppinglist.date_created,
-                                'date_modified': shoppinglist.date_modified,
-                                'created_by': shoppinglist.created_by
-                            }
-                            return make_response(jsonify(response)), 200
-                        else:
-                            response = {
-                                'message' : 'Special characters not allowed'
-
-                            }
-                            return make_response(jsonify(response)), 404
+                        
+                        
+                    
                 else:
                     # Handle GET request, sending back the shoppinglist to the user
                     response = {
@@ -248,17 +273,22 @@ def create_app(config_name):
                             return make_response(response), 201
                         else:
                             response = {
-                                'message' : 'name cannot contain special characters'
+                                'message' : 'Name cannot have special characters'
                             }
                             return make_response(jsonify(response)), 404
 
                 else:
-                    # GET all the shoppinglists created by this user
+                    # GET all the shoppingitems in this shopinglist created by this user
 
-                    shoppinglistsitems = Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id)
+                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id). all()
+                    if not shoppinglistsitemss:
+                        response = {
+                            'message' : 'No items in this shopping list'
+                        }
+                        return make_response(jsonify(response))
                     results = []
 
-                    for shoppinglistitem in shoppinglistsitems:
+                    for shoppinglistitem in shoppinglistsitemss:
                         obj = {
                             'id': shoppinglistitem.id,
                             'name': shoppinglistitem.name,
@@ -292,34 +322,47 @@ def create_app(config_name):
                 # Get the shoppinglist with the id specified from the URL (<int:id>)
                 shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
                 if not shoppinglistitems:
-                    # There is no shoppinglist with this ID for this User, so
-                    # Raise an HTTPException with a 404 not found status code
-                    abort(404)
+                    # There is no shoppinglistitem with this ID for this User
+                    response = {
+                        'message': 'That item does not exist in this shopping list'
+                    }
+                    return make_response(jsonify(response))
+                    
 
                 if request.method == "DELETE":
-                    # delete the shoppinglist using our delete method
+                    # delete the shoppingitem using our delete method
                     shoppinglistitems.delete()
                     return {
                         "message": "item {} deleted".format(shoppinglistitems.id)
                     }, 200
 
                 elif request.method == 'PUT':
-                    # Obtain the new name of the shoppinglist from the request data
+                    # Obtain the new name of the shoppingitem from the request data
                     name = str(request.data.get('name', ''))
+                    if name == '':
+                        response = {
+                            'message' : 'Name cannot be empty'
+                        }
+                        return make_response(jsonify(response)), 404
+                    if re.match("[a-zA-Z0-9- .]+$", name):
+                        shoppinglistitems.name = name
+                        shoppinglistitems.save()
 
-                    shoppinglistitems.name = name
-                    shoppinglistitems.save()
-
-                    response = {
-                        'id': shoppinglistitems.id,
-                        'name': shoppinglistitems.name,
-                        'date_created': shoppinglistitems.date_created,
-                        'date_modified': shoppinglistitems.date_modified,
-                        'shoppinglistname': shoppinglistitems.shoppinglistname
-                    }
-                    return make_response(jsonify(response)), 200
+                        response = {
+                            'id': shoppinglistitems.id,
+                            'name': shoppinglistitems.name,
+                            'date_created': shoppinglistitems.date_created,
+                            'date_modified': shoppinglistitems.date_modified,
+                            'shoppinglistname': shoppinglistitems.shoppinglistname
+                        }
+                        return make_response(jsonify(response)), 200
+                    else:
+                        response = {
+                            'message' : 'name should not contain special characters'
+                        }
+                        return make_response(jsonify(response)), 404
                 else:
-                    # Handle GET request, sending back the shoppinglist to the user
+                    # Handle GET request, sending back the shoppinglist item to the user
                     response = {
                         'id': shoppinglistitems.id,
                         'name': shoppinglistitems.name,
