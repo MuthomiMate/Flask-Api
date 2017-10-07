@@ -75,8 +75,7 @@ def create_app(config_name):
                                 'id': shoppinglist.id,
                                 'name': shoppinglist.name,
                                 'date_created': shoppinglist.date_created,
-                                'date_modified': shoppinglist.date_modified,
-                                'created_by': user_id
+                                'date_modified': shoppinglist.date_modified
                             })
 
                             return make_response(response), 201
