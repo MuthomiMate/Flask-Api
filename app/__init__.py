@@ -36,14 +36,14 @@ def create_app(config_name):
         response = {
             'message' : 'Method not allowed'
         }
-        return make_response(jsonify(response)), 404
+        return make_response(jsonify(response)), 405
 
     @app.errorhandler(500)
     def not_found(error):
         response = {
             'message' : 'Internal Server Error'
         }
-        return make_response(jsonify(response)), 404
+        return make_response(jsonify(response)), 500
 
    
 
@@ -63,9 +63,9 @@ def create_app(config_name):
                     name = str(request.data.get('name', ''))
                     if name == '':
                         response={
-                        'message' : 'Name key and Value required'
+                        'message' : 'Enter name'
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response))
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
@@ -84,7 +84,7 @@ def create_app(config_name):
                             response={
                             'message' : 'Name does not contain special characters'
                             }
-                            return make_response(jsonify(response)), 404
+                            return make_response(jsonify(response))
 
                 else:
                     # GET all the shoppinglists created by this user
@@ -115,14 +115,14 @@ def create_app(config_name):
                         response = {
                             'message': "Shopping list name does not exist"
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response))
                     else:
                         shoppingliss = Shoppinglist.query.filter_by(created_by=user_id).all()
                         if not shoppingliss:
                             response = jsonify({
                                 "message": "You do not have  any shopping list"
                             })
-                            return make_response(response), 404
+                            return make_response(response)
                         limit = int(request.args.get('limit', 2))
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
@@ -214,7 +214,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'Name should not have special characters'
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response))
                         
                         
                     
@@ -256,7 +256,7 @@ def create_app(config_name):
                         response = {
                         'message':'Item name cannot be empty'
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response))
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
@@ -275,7 +275,7 @@ def create_app(config_name):
                             response = {
                                 'message' : 'Name cannot have special characters'
                             }
-                            return make_response(jsonify(response)), 404
+                            return make_response(jsonify(response))
 
                 else:
                     # GET all the shoppingitems in this shopinglist created by this user
@@ -343,7 +343,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'Name cannot be empty'
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response))
                     if re.match("[a-zA-Z0-9- .]+$", name):
                         shoppinglistitems.name = name
                         shoppinglistitems.save()
@@ -360,7 +360,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'name should not contain special characters'
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response))
                 else:
                     # Handle GET request, sending back the shoppinglist item to the user
                     response = {
