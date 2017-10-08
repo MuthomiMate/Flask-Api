@@ -91,7 +91,7 @@ class Shoppinglist(db.Model):
     def __init__(self, name, created_by):
         """initialize with name."""
         self.name = name
-        self.created_by =created_by
+        self.created_by = created_by
 
     def save(self):
         db.session.add(self)
@@ -110,7 +110,7 @@ class Shoppinglist(db.Model):
 
 
 class Shoppinglistitems(db.Model):
-    """This class represents the shoppinglist table."""
+    """This class represents the shoppinglist items table."""
 
     __tablename__ = 'shoppinglistsitems'
 
@@ -125,7 +125,7 @@ class Shoppinglistitems(db.Model):
     def __init__(self, name, shoppinglistname):
         """initialize with name."""
         self.name = name
-        self.shoppinglistname =shoppinglistname
+        self.shoppinglistname = shoppinglistname
 
     def save(self):
         db.session.add(self)

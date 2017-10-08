@@ -1,6 +1,7 @@
+# app/ --init__.py
 import json
-from flask_api import FlaskAPI, status
 import re
+from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
 
 from flask import request, jsonify, abort, make_response
@@ -13,10 +14,11 @@ from instance.config import app_config
 from flask_bcrypt import Bcrypt
 
 # initialize db
-db = SQLAlchemy()
+db = SQLAlchemy() # pylint: disable=invalid-name
 
 
 def create_app(config_name):
+    """ creates the app according to config name specified """
     from app.models import Shoppinglist, User, Shoppinglistitems
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
@@ -25,31 +27,31 @@ def create_app(config_name):
     db.init_app(app)
 
     @app.errorhandler(404)
-    def not_found(error):
+    def not_found():
+        """ handles error when users enters inappropriate endpoint """
         response = {
             'message' : 'Page not found'
         }
         return make_response(jsonify(response)), 404
 
     @app.errorhandler(405)
-    def not_found(error):
+    def method_not_allowed():
+        """ handles errors if users uses method that is not allowed in an endpoint """
         response = {
             'message' : 'Method not allowed'
         }
         return make_response(jsonify(response)), 405
 
     @app.errorhandler(500)
-    def not_found(error):
+    def internal_server_error():
+        """ handles internal server error reponses """
         response = {
             'message' : 'Internal Server Error'
         }
         return make_response(jsonify(response)), 500
-
-   
-
     @app.route('/shoppinglists/', methods=['POST', 'GET'])
     def shoppinglists():
-        # Get the access token from the header
+        """ Get the access token from the header """
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
 
@@ -62,8 +64,8 @@ def create_app(config_name):
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
                     if name == '':
-                        response={
-                        'message' : 'Enter name'
+                        response = {
+                            'message' : 'Enter name'
                         }
                         return make_response(jsonify(response))
 
@@ -80,8 +82,8 @@ def create_app(config_name):
 
                             return make_response(response), 201
                         else:
-                            response={
-                            'message' : 'Name does not contain special characters'
+                            response = {
+                                'message' : 'Name does not contain special characters'
                             }
                             return make_response(jsonify(response))
 
@@ -100,12 +102,12 @@ def create_app(config_name):
                             '%' + search_query + '%')).filter_by(created_by=user_id).all()
                         if search_results:
                             for shoppinglist in search_results:
-                                obj={
-                                'id': shoppinglist.id,
-                                'name': shoppinglist.name,
-                                'date_created': shoppinglist.date_created,
-                                'date_modified': shoppinglist.date_modified,
-                                'created_by': shoppinglist.created_by
+                                obj = {
+                                    'id': shoppinglist.id,
+                                    'name': shoppinglist.name,
+                                    'date_created': shoppinglist.date_created,
+                                    'date_modified': shoppinglist.date_modified,
+                                    'created_by': shoppinglist.created_by
                                 }
                                 results.append(obj)
                             return make_response(jsonify(results)), 200
@@ -126,18 +128,17 @@ def create_app(config_name):
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
                         order_by(Shoppinglist.name.asc()).paginate(page, limit)
-                        results=[]
-                        
+                        results = []
                         if shoppingliss:
                             for shoppinglist in paginated_lists.items:
-                                obj={
-                                'name': shoppinglist.name,
-                                'date_created': shoppinglist.date_created,
-                                'date_modified': shoppinglist.date_modified,
+                                obj = {
+                                    'name': shoppinglist.name,
+                                    'date_created': shoppinglist.date_created,
+                                    'date_modified': shoppinglist.date_modified,
                                 }
                                 results.append(obj)
-                            nextPage = 'None'
-                            prevPage = 'None'
+                            next_page = 'None'
+                            prev_page = 'None'
                             if paginated_lists.has_next:
                                 next_page = '/shoppinglists/?limit={}&page={}'.format(
                                     str(limit),
@@ -150,8 +151,8 @@ def create_app(config_name):
                                 )
                             response = {
                                 'shopping lists': results,
-                                'previous page': prevPage,
-                                'next page': nextPage
+                                'previous page': prev_page,
+                                'next page': next_page
                             }
                             return make_response(jsonify(results)), 200
 
@@ -163,7 +164,7 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
     @app.route('/shoppinglists/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-    def shoppinglist_manipulation(id, **kwargs):
+    def shoppinglist_manipulation(id):
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -214,9 +215,6 @@ def create_app(config_name):
                             'message' : 'Name should not have special characters'
                         }
                         return make_response(jsonify(response))
-                        
-                        
-                    
                 else:
                     # Handle GET request, sending back the shoppinglist to the user
                     response = {
@@ -241,8 +239,6 @@ def create_app(config_name):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
-        
-
         if access_token:
          # Attempt to decode the token and get the User ID
             user_id = User.decode_token(access_token)
@@ -253,13 +249,14 @@ def create_app(config_name):
                     name = str(request.data.get('name', ''))
                     if name == '':
                         response = {
-                        'message':'Item name cannot be empty'
+                            'message' : 'Item name cannot be empty'
                         }
-                        return make_response(jsonify(response))
+                    return make_response(jsonify(response))
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
-                            shoppinglistitem = Shoppinglistitems(name=name, shoppinglistname=shoppinglist_id)
+                            shoppinglistitem = Shoppinglistitems(name=name,
+                                                                 shoppinglistname=shoppinglist_id)
                             shoppinglistitem.save()
                             response = jsonify({
                                 'id': shoppinglistitem.id,
@@ -279,7 +276,8 @@ def create_app(config_name):
                 else:
                     # GET all the shoppingitems in this shopinglist created by this user
 
-                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id). all()
+                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistname=
+                                                                            shoppinglist_id). all()
                     if not shoppinglistsitemss:
                         response = {
                             'message' : 'No items in this shopping list'
@@ -306,8 +304,9 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/shoppinglists/<int:shoppinglist_id>/items/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-    def shoppinglistitem_manipulation(id, shoppinglist_id, **kwargs):
+    @app.route('/shoppinglists/<int:shoppinglist_id>/items/<int:id>',
+               methods=['GET', 'PUT', 'DELETE'])
+    def shoppinglistitem_manipulation(id, shoppinglist_id):
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -326,7 +325,6 @@ def create_app(config_name):
                         'message': 'That item does not exist in this shopping list'
                     }
                     return make_response(jsonify(response))
-                    
 
                 if request.method == "DELETE":
                     # delete the shoppingitem using our delete method

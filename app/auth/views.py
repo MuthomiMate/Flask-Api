@@ -13,25 +13,26 @@ class RegistrationView(MethodView):
 
     def post(self):
         """Handle POST request for this view. Url ---> /auth/register"""
-        email= str(request.data.get('email', ''))
-        password= str(request.data.get('password', ''))
+        email = str(request.data.get('email', ''))
+        password = str(request.data.get('password', ''))
         if email == '' and password == '':
             response = {
-            'message': 'Email, Password and name cannot be empty'
+                'message': 'Email, Password and name cannot be empty'
             }
             return make_response(jsonify(response)), 404
         regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-        regPass = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+        reg_pass = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
         if not re.search(regex, email):
             response = {
-            'message' : 'Enter a correct email address'
-            }
-            return make_response(jsonify(response)),404
-        if not re.search(regPass, password):
-            response = {
-            'message' : 'Password should be at least 8 characters and should contain both numbers and letters'
+                'message' : 'Enter a correct email address'
             }
             return make_response(jsonify(response)), 404
+        if not re.search(reg_pass, password):
+            response = {
+                'message' :
+                'Password should be at least 8 characters both numbers and letters'
+            }
+            return make_response(jsonify(response))
 
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
