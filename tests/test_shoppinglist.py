@@ -84,7 +84,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         self.assertIn('Enter name', str(res.data))
 
     def test_name_with_special_characters_shoppinglist_creation(self):
-        """Test API can create a shoppinglist (POST request)"""
+        """Test API cannot create a shoppinglist with special characters (POST request)"""
         self.register_user()
         name = {
             'name' : '////////'
