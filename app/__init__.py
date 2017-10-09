@@ -49,7 +49,7 @@ def create_app(config_name):
             'message' : 'Internal Server Error'
         }
         return make_response(jsonify(response)), 500
-    @app.errorhandler(404)
+    @app.errorhandler(400)
     def bad_request(error):
         """ handles error when users enters inappropriate endpoint """
         response = {
