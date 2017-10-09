@@ -33,6 +33,40 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(result['message'], "You registered successfully. Please log in.")
         self.assertEqual(res.status_code, 201)
 
+    def test_empty_email_andpassword_registration(self):
+        """Test user email and password are empty"""
+        user = {
+            'email': '',
+            'password': ''
+        }
+        res = self.client().post('/auth/register', data=user)
+        # get the results returned in json format
+        result = json.loads(res.data.decode())
+        # assert that the request contains a error message
+        self.assertEqual(result['message'], "Email, Password and name cannot be empty")
+    def test_email_notcorrect_registration(self):
+        """Test user email not correct"""
+        user = {
+            'email': 'muthomi',
+            'password': 'muthomi1234'
+        }
+        res = self.client().post('/auth/register', data=user)
+        # get the results returned in json format
+        result = json.loads(res.data.decode())
+        # assert that the request contains a error message
+        self.assertEqual(result['message'], "Enter a correct email address")
+
+    def test_password_not_correct_registration(self):
+        """Test user password not correct"""
+        user = {
+            'email': 'muthomi@mail.com',
+            'password': 'muthomi'
+        }
+        res = self.client().post('/auth/register', data=user)
+        # get the results returned in json format
+        result = json.loads(res.data.decode())
+        # assert that the request contains a error message
+        self.assertEqual(result['message'], "Password should be at least 8 characters both numbers and letters")
 
     def test_already_registered_user(self):
         """Test that a user cannot be registered twice."""
