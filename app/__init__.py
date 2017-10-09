@@ -97,7 +97,7 @@ def create_app(config_name):
                                 return make_response(jsonify(response))
                         else:
                             response = {
-                                'message' : 'Name does not contain special characters'
+                                'message' : 'Name should not contain special characters'
                             }
                             return make_response(jsonify(response))
 
@@ -149,6 +149,7 @@ def create_app(config_name):
                                     'name': shoppinglist.name,
                                     'date_created': shoppinglist.date_created,
                                     'date_modified': shoppinglist.date_modified,
+                                    'id': shoppinglist.id,
                                 }
                                 results.append(obj)
                             next_page = 'None'
@@ -190,7 +191,7 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
                 # Get the shoppinglist with the id specified from the URL (<int:id>)
-                shoppinglist = Shoppinglist.query.filter_by(id=id).first()
+                shoppinglist = Shoppinglist.query.filter_by(id=id, created_by=user_id).first()
                 if not shoppinglist:
                     response = {
                         'message' : 'That shoppinglists does not exist'
@@ -265,6 +266,19 @@ def create_app(config_name):
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
                 # Go ahead and handle the request, the user is authenticated
+
+                shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id).first()
+                if not shoppinglist:
+                    response = {
+                        'message' : 'That shopping list does not exist'
+                    }
+                    return make_response(jsonify(response))
+                shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
+                if not shoppinglist:
+                    response = {
+                        'message' : 'That shoppinglists does not exist'
+                    }
+                    return make_response(jsonify(response))
 
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
@@ -346,6 +360,19 @@ def create_app(config_name):
 
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
+                shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id).first()
+                if not shoppinglist:
+                    response = {
+                        'message' : 'That shopping list does not exist'
+                    }
+                    return make_response(jsonify(response))
+                #check if the shopping_list belongs to that person
+                shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
+                if not shoppinglist:
+                    response = {
+                        'message' : 'That shoppinglists does not exist'
+                    }
+                    return make_response(jsonify(response))
                 # Get the shoppinglist with the id specified from the URL (<int:id>)
                 shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
                 if not shoppinglistitems:
@@ -371,7 +398,7 @@ def create_app(config_name):
                         }
                         return make_response(jsonify(response))
                     if re.match("[a-zA-Z0-9- .]+$", name):
-                        shoppinglistitemexist = Shoppinglist.query.filter_by(name=request.data['name'],
+                        shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
                                                                                 shoppinglistname=shoppinglist_id).first()
                         if not shoppinglistitemexist:
                             shoppinglistitems.name = name
