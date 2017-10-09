@@ -49,6 +49,56 @@ class ShoppinglistTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('Go to Borabora', str(res.data))
 
+    def test_exists_shoppinglist_creation(self):
+        """Test API cannot create a shoppinglist that exists (POST request)"""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+         #create the same shoppinglist by making a POST request
+        res2 = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertIn('That shopping list exists', str(res2.data))
+
+    def test_empty_shoppinglist_creation(self):
+        """Test API can create a shoppinglist (POST request)"""
+        self.register_user()
+        name = {
+            'name' : ''
+        }
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=name)
+        self.assertIn('Enter name', str(res.data))
+
+    def test_name_with_special_characters_shoppinglist_creation(self):
+        """Test API can create a shoppinglist (POST request)"""
+        self.register_user()
+        name = {
+            'name' : '////////'
+        }
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=name)
+        self.assertIn('Name should not contain special characters', str(res.data))
+
     def test_api_can_get_all_shoppinglists(self):
         """Test API can get a shoppinglist (GET request)."""
         self.register_user()
