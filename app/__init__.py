@@ -272,11 +272,11 @@ def create_app(config_name):
                         response = {
                             'message' : 'Item name cannot be empty'
                         }
-                    return make_response(jsonify(response))
+                        return make_response(jsonify(response))
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
-                            shoppinglistitemexist = Shoppinglist.query.filter_by(name=request.data['name'],
+                            shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
                                                                                 shoppinglistname=shoppinglist_id).first()
                             if not shoppinglistitemexist:
                                 shoppinglistitem = Shoppinglistitems(name=name,
