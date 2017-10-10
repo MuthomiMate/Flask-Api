@@ -167,11 +167,55 @@ class ShoppinglistTestCase(unittest.TestCase):
             })
         self.assertEqual(rv.status_code, 200)
 
-        # finally, we get the edited shoppinglist to see if it is actually edited.
-        results = self.client().get(
+    def test_shoppinglist_can_be_edited_with_empty_name(self):
+        """Test API can edit  shoppinglist with empty name. (PUT request)"""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # first, we create a shoppinglist by making a POST request
+        rv = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'name': 'Eat'})
+        self.assertEqual(rv.status_code, 201)
+        # get the json with the shoppinglist
+        results = json.loads(rv.data.decode())
+
+        # then, we edit the created shoppinglist by making a PUT request
+        rv2 = self.client().put(
             '/shoppinglists/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token))
-        self.assertIn('Dont', str(results.data))
+            headers=dict(Authorization="Bearer " + access_token),
+            data={
+                "name": ''
+            })
+        self.assertIn("Name cannot be empty", str(rv2.data))
+
+    def test_shoppinglist_can_be_edited_with_special_characters(self):
+        """Test API can edit  shoppinglist with empty name. (PUT request)"""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # first, we create a shoppinglist by making a POST request
+        rv = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'name': 'Eat'})
+        self.assertEqual(rv.status_code, 201)
+        # get the json with the shoppinglist
+        results = json.loads(rv.data.decode())
+
+        # then, we edit the created shoppinglist by making a PUT request
+        rv2 = self.client().put(
+            '/shoppinglists/{}'.format(results['id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data={
+                "name": '/////'
+            })
+        self.assertIn("Name should not have special characters", str(rv2.data))
+
+        
 
     def test_shoppinglist_deletion(self):
         """Test API can delete an existing shoppinglist. (DELETE request)."""
