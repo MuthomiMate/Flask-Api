@@ -119,6 +119,19 @@ class ShoppinglistTestCase(unittest.TestCase):
         )
         self.assertEqual(res.status_code, 200)
         self.assertIn('Go to Borabora', str(res.data))
+    def test_api_can_get_withouta_shoppinglist(self):
+        """Test API can get a shoppinglist (GET request)."""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+
+        # get all the shoppinglists that belong to the test user by making a GET request
+        res = self.client().get(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+        )
+        self.assertIn('You do not have  any shopping list', str(res.data))
 
     def test_api_can_get_shoppinglist_by_id(self):
         """Test API can get a single shoppinglist by using it's id."""
@@ -142,6 +155,29 @@ class ShoppinglistTestCase(unittest.TestCase):
         # assert that the shoppinglist is actually returned given its ID
         self.assertEqual(result.status_code, 200)
         self.assertIn('Go to Borabora', str(result.data))
+
+    def test_api_can_get_nonexisting_shoppinglist_by_id(self):
+        """Test API can get a single shoppinglist by using it's id."""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        rv = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+
+        # assert that the shoppinglist is created 
+        self.assertEqual(rv.status_code, 201)
+        # get the response data in json format
+        results = json.loads(rv.data.decode())
+
+        result = self.client().get(
+            '/shoppinglists/5',
+            headers=dict(Authorization="Bearer " + access_token))
+        # assert that the shoppinglist is actually returned given its ID
+        self.assertEqual(result.status_code, 200)
+        self.assertIn('That shoppinglists does not exist', str(result.data))
 
     def test_shoppinglist_can_be_edited(self):
         """Test API can edit an existing shoppinglist. (PUT request)"""
@@ -214,6 +250,38 @@ class ShoppinglistTestCase(unittest.TestCase):
                 "name": '/////'
             })
         self.assertIn("Name should not have special characters", str(rv2.data))
+
+    def test_shoppinglist_can_be_edited_with_existing_name(self):
+        """Test API can edit an existing shoppinglist with a name for another shoppinglist. (PUT request)"""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # first, we create a shoppinglist by making a POST request
+        rv = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'name': 'Eat'})
+        self.assertEqual(rv.status_code, 201)
+        # get the json with the shoppinglist
+        results = json.loads(rv.data.decode())
+
+        rv = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'name': 'money'})
+        self.assertEqual(rv.status_code, 201)
+        # get the json with the shoppinglist
+        results = json.loads(rv.data.decode())
+
+        # then, we edit the created shoppinglist by making a PUT request
+        rv2 = self.client().put(
+            '/shoppinglists/{}'.format(results['id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data={
+                "name": "Eat"
+            })
+        self.assertIn("Shoppinglist with that name exists", str(rv2.data))
 
         
 
