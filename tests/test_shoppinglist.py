@@ -311,6 +311,63 @@ class ShoppinglistTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 200)
 
+    def test_page_not_found(self):
+        """Test API can delete an existing shoppinglist. (DELETE request)."""
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        rv = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'name': 'Eat'})
+        self.assertEqual(rv.status_code, 201)
+        # get the shoppinglist in json
+        results = json.loads(rv.data.decode())
+
+        # delete the shoppinglist we just created
+        res = self.client().delete(
+            '/shoppinglists/{}'.format(results['id']),
+            headers=dict(Authorization="Bearer " + access_token),)
+        self.assertEqual(res.status_code, 200)
+
+        # Test to see if it exists
+        result = self.client().get(
+            '/shoppinglists/ggggggg1',
+            headers=dict(Authorization="Bearer " + access_token))
+        self.assertIn("Page not found", str(result.data))
+
+    def test_bad_request(self):
+        """Test API can create a shoppinglist (POST request)"""
+        self.register_user()
+        name = {
+            'names' : ''
+        }
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=name)
+        self.assertIn('Bad Request', str(res.data))
+
+    def test_method_not_allowed(self):
+        """Test API can create a shoppinglist (POST request)"""
+        self.register_user()
+        name = {
+            'names' : ''
+        }
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+
+        # create a shoppinglist by making a POST request
+        res = self.client().put(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=name)
+        self.assertIn('Method not allowed', str(res.data))
     def tearDown(self):
         """teardown all initialized variables."""
         with self.app.app_context():
