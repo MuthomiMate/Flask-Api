@@ -3,6 +3,7 @@ import json
 import re
 from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
 from flask import request, jsonify, abort, make_response
 
@@ -433,6 +434,53 @@ def create_app(config_name):
                     }
                     return make_response(jsonify(response)), 200
             else:
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
+    @app.route('/auth/ccpas',
+               methods=['PUT'])
+    def change_password():
+         # get the access token from the authorization header
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+
+        if access_token:
+            # Get the user id related to this access token
+            user_id = User.decode_token(access_token)
+
+            if not isinstance(user_id, str):
+                # If the id is not a string(error), we have a user id
+                if request.method == "PUT":
+                    old_password = str(request.data.get('old_password', ''))
+                    new_password = str(request.data.get('new_password', ''))
+
+                    if old_password == '' or new_password == '':
+                        response = {
+                            'mesage' : 'please enter old and new password'
+                        }
+                        return make_response(jsonify(response))
+                    else:
+
+                        user = User.query.filter_by(id=user_id).first()
+                        print(user.password)
+                        if user:
+                            if Bcrypt().check_password_hash(user.password, old_password):
+                                user.password = new_password
+                                user.save()
+                                response = {
+                                    'message' : 'password changed sucessfully'
+                                }
+                                return make_response(jsonify(response))
+                            else:
+                                response = { 
+                                    'message' : 'password entered is incorrect. Try again!'
+                                }
+
+            else: 
                 # user is not legit, so the payload is an error message
                 message = user_id
                 response = {
