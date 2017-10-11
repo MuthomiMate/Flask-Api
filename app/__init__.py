@@ -1,6 +1,8 @@
 # app/ --init__.py
 import json
 import re
+import random
+import string
 from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
@@ -466,19 +468,21 @@ def create_app(config_name):
                     else:
 
                         user = User.query.filter_by(id=user_id).first()
-                        print(user.password)
+                        
                         if user:
                             if Bcrypt().check_password_hash(user.password, old_password):
-                                user.password = new_password
+                                encrypted_password = Bcrypt().generate_password_hash(new_password).decode()
+                                user.password = encrypted_password
                                 user.save()
                                 response = {
-                                    'message' : 'password changed sucessfully'
+                                    'message' : 'password changed sucessfully. Please login again'
                                 }
                                 return make_response(jsonify(response))
                             else:
                                 response = { 
                                     'message' : 'password entered is incorrect. Try again!'
                                 }
+                                return make_response(jsonify(response))
 
             else: 
                 # user is not legit, so the payload is an error message
@@ -488,6 +492,35 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
+
+    @app.route('/auth/passreset',
+               methods=['PUT'])
+    def reset_password():
+        email = str(request.data.get('email', ''))
+        if not email:
+            response = {
+                'message' : 'Please enter email address'
+            }
+            return make_response(jsonify(response))
+        else:
+            user = User.query.filter_by(email=email).first()
+            gen_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            if user:
+                #user with that email exists
+                encrypted_password = Bcrypt().generate_password_hash(gen_password).decode()
+                user.password = encrypted_password
+                user.save()
+                response = {
+                    'message' : 'You password is '+ str(gen_password) + '. Please change the password after login'
+                }
+                return make_response(jsonify(response))
+
+            else:
+                response = {
+                    'message' : 'user not registered. Please register'
+                }
+                return make_response(jsonify(response))
+
 
     # import the authentication blueprint and register it on the app
     from .auth import auth_blueprint
