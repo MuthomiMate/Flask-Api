@@ -120,7 +120,7 @@ class Shoppinglistitems(db.Model):
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
-    shoppinglistname = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
+    shoppinglistid = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
 
     def __init__(self, name, shoppinglistname):
         """initialize with name."""

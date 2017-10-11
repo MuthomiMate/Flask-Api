@@ -294,7 +294,7 @@ def create_app(config_name):
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
                             shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
-                                                                                shoppinglistname=shoppinglist_id).first()
+                                                                                shoppinglistid=shoppinglist_id).first()
                             if not shoppinglistitemexist:
                                 shoppinglistitem = Shoppinglistitems(name=name,
                                                                     shoppinglistname=shoppinglist_id)
@@ -304,7 +304,7 @@ def create_app(config_name):
                                     'name': shoppinglistitem.name,
                                     'date_created': shoppinglistitem.date_created,
                                     'date_modified': shoppinglistitem.date_modified,
-                                    'shoppinglistname': shoppinglist_id
+                                    'shoppinglistid': shoppinglist_id
                                 })
 
                                 return make_response(response), 201
@@ -322,7 +322,7 @@ def create_app(config_name):
                 else:
                     # GET all the shoppingitems in this shopinglist created by this user
 
-                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistname=
+                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistid=
                                                                             shoppinglist_id). all()
                     if not shoppinglistsitemss:
                         response = {
@@ -337,7 +337,7 @@ def create_app(config_name):
                             'name': shoppinglistitem.name,
                             'date_created': shoppinglistitem.date_created,
                             'date_modified': shoppinglistitem.date_modified,
-                            'shoppinglistname': shoppinglist_id
+                            'shoppinglistid': shoppinglist_id
                         }
                         results.append(obj)
 
@@ -402,7 +402,7 @@ def create_app(config_name):
                         return make_response(jsonify(response))
                     if re.match("[a-zA-Z0-9- .]+$", name):
                         shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
-                                                                                shoppinglistname=shoppinglist_id).first()
+                                                                                shoppinglistid=shoppinglist_id).first()
                         if not shoppinglistitemexist:
                             shoppinglistitems.name = name
                             shoppinglistitems.save()
@@ -432,7 +432,7 @@ def create_app(config_name):
                         'name': shoppinglistitems.name,
                         'date_created': shoppinglistitems.date_created,
                         'date_modified': shoppinglistitems.date_modified,
-                        'shoppinglistname': shoppinglistitems.shoppinglistname
+                        'shoppinglistid': shoppinglistitems.shoppinglistid
                     }
                     return make_response(jsonify(response)), 200
             else:
