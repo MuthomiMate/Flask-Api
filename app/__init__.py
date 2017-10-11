@@ -297,7 +297,7 @@ def create_app(config_name):
                                                                                 shoppinglistid=shoppinglist_id).first()
                             if not shoppinglistitemexist:
                                 shoppinglistitem = Shoppinglistitems(name=name,
-                                                                    shoppinglistname=shoppinglist_id)
+                                                                    shoppinglistid=shoppinglist_id)
                                 shoppinglistitem.save()
                                 response = jsonify({
                                     'id': shoppinglistitem.id,
@@ -412,7 +412,7 @@ def create_app(config_name):
                                 'name': shoppinglistitems.name,
                                 'date_created': shoppinglistitems.date_created,
                                 'date_modified': shoppinglistitems.date_modified,
-                                'shoppinglistname': shoppinglistitems.shoppinglistname
+                                'shoppinglistid': shoppinglistitems.shoppinglistid
                             }
                             return make_response(jsonify(response)), 200
                         else:

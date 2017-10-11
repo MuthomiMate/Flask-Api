@@ -122,10 +122,10 @@ class Shoppinglistitems(db.Model):
         onupdate=db.func.current_timestamp())
     shoppinglistid = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
 
-    def __init__(self, name, shoppinglistname):
+    def __init__(self, name, shoppinglistid):
         """initialize with name."""
         self.name = name
-        self.shoppinglistname = shoppinglistname
+        self.shoppinglistid = shoppinglistid
 
     def save(self):
         db.session.add(self)
