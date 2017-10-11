@@ -106,10 +106,9 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         results = json.loads(rv.data.decode())
 
         result = self.client().get(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the shoppinglist is actually returned given its ID
-        self.assertEqual(result.status_code, 200)
         self.assertIn('Go to Borabora', str(result.data))
 
     def test_shoppinglistitem_can_be_edited(self):
@@ -136,7 +135,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
 
         # then, we edit the created shoppinglist by making a PUT request
         rv = self.client().put(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),
             data={
                 "name": "Dont just eat but also pray and love "
@@ -145,7 +144,7 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
 
         # finally, we get the edited shoppinglist to see if it is actually edited.
         results = self.client().get(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
         self.assertIn('Dont just eat', str(results.data))
 
@@ -172,13 +171,13 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
 
         # delete the shoppinglist we just created
         res = self.client().delete(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),)
         self.assertEqual(res.status_code, 200)
 
         # Test to see if it exists
         result = self.client().get(
-            '/shoppinglists/1/items/1',
+            '/shoppinglists/items/1',
             headers=dict(Authorization="Bearer " + access_token))
         self.assertEqual(result.status_code, 200)
 
