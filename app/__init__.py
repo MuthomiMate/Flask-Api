@@ -350,9 +350,9 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/shoppinglists/<int:shoppinglist_id>/items/<int:id>',
+    @app.route('/shoppinglists/items/<int:id>',
                methods=['GET', 'PUT', 'DELETE'])
-    def shoppinglistitem_manipulation(id, shoppinglist_id):
+    def shoppinglistitem_manipulation(id):
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -363,6 +363,17 @@ def create_app(config_name):
 
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
+                # Get the shoppinglist with the id specified from the URL (<int:id>)
+                shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
+                if not shoppinglistitems:
+                    # There is no shoppinglistitem with this ID for this User
+                    response = {
+                        'message': 'That item does not exist'
+                    }
+                    return make_response(jsonify(response))
+
+                shoppinglist_idf = Shoppinglistitems.query.filter_by(id=id).first()
+                shoppinglist_id=shoppinglist_idf.shoppinglistid
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id).first()
                 if not shoppinglist:
                     response = {
@@ -373,17 +384,10 @@ def create_app(config_name):
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
                 if not shoppinglist:
                     response = {
-                        'message' : 'That shoppinglists does not exist'
+                        'message' : 'You do not have permission to view the items'
                     }
                     return make_response(jsonify(response))
-                # Get the shoppinglist with the id specified from the URL (<int:id>)
-                shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
-                if not shoppinglistitems:
-                    # There is no shoppinglistitem with this ID for this User
-                    response = {
-                        'message': 'That item does not exist in this shopping list'
-                    }
-                    return make_response(jsonify(response))
+                
 
                 if request.method == "DELETE":
                     # delete the shoppingitem using our delete method

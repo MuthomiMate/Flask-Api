@@ -133,7 +133,7 @@ class Shoppinglistitems(db.Model):
 
     @staticmethod
     def get_all():
-        return Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id)
+        return Shoppinglistitems.query.filter_by(shoppinglistid=shoppinglist_id)
 
     def delete(self):
         db.session.delete(self)
