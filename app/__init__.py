@@ -32,7 +32,7 @@ def create_app(config_name):
     @app.route('/', methods=[ 'GET'])
     def index():
 
-         return redirect("docs.shoppinglistapi7.apiary.io")
+        return redirect("docs.shoppinglistapi7.apiary.io")
 
     @app.errorhandler(404)
     def not_found(error):
