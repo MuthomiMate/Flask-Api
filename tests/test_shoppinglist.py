@@ -34,20 +34,22 @@ class ShoppinglistTestCase(unittest.TestCase):
             'password': password
         }
         return self.client().post('/auth/login', data=user_data)
-
-    def test_shoppinglist_creation(self):
-        """Test API can create a shoppinglist (POST request)"""
+    def create_shoppinglist(self):
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
         # create a shoppinglist by making a POST request
-        res = self.client().post(
+        return self.client().post(
             '/shoppinglists/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+
+    def test_shoppinglist_creation(self):
+        """Test API can create a shoppinglist (POST request)"""
+        res=self.create_shoppinglist()
         self.assertIn('Go to Borabora', str(res.data))
+        
 
     def test_exists_shoppinglist_creation(self):
         """Test API cannot create a shoppinglist that exists (POST request)"""
@@ -56,15 +58,9 @@ class ShoppinglistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # create a shoppinglist by making a POST request
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
+        res = self.create_shoppinglist()
          #create the same shoppinglist by making a POST request
-        res2 = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
+        res2 = self.create_shoppinglist()
         self.assertIn('That shopping list exists', str(res2.data))
 
     def test_empty_shoppinglist_creation(self):
@@ -110,7 +106,6 @@ class ShoppinglistTestCase(unittest.TestCase):
             '/shoppinglists/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
 
         # get all the shoppinglists that belong to the test user by making a GET request
         res = self.client().get(
@@ -143,9 +138,6 @@ class ShoppinglistTestCase(unittest.TestCase):
             '/shoppinglists/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist)
-
-        # assert that the shoppinglist is created 
-        self.assertEqual(rv.status_code, 201)
         # get the response data in json format
         results = json.loads(rv.data.decode())
 
@@ -153,7 +145,6 @@ class ShoppinglistTestCase(unittest.TestCase):
             '/shoppinglists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the shoppinglist is actually returned given its ID
-        self.assertEqual(result.status_code, 200)
         self.assertIn('Go to Borabora', str(result.data))
 
     def test_api_can_get_nonexisting_shoppinglist_by_id(self):
@@ -161,16 +152,6 @@ class ShoppinglistTestCase(unittest.TestCase):
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
-
-        rv = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-
-        # assert that the shoppinglist is created 
-        self.assertEqual(rv.status_code, 201)
-        # get the response data in json format
-        results = json.loads(rv.data.decode())
 
         result = self.client().get(
             '/shoppinglists/5',
@@ -186,11 +167,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # first, we create a shoppinglist by making a POST request
-        rv = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat'})
-        self.assertEqual(rv.status_code, 201)
+        rv = self.create_shoppinglist()
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
 
@@ -210,11 +187,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # first, we create a shoppinglist by making a POST request
-        rv = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat'})
-        self.assertEqual(rv.status_code, 201)
+        rv = self.create_shoppinglist()
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
 
@@ -234,11 +207,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # first, we create a shoppinglist by making a POST request
-        rv = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat'})
-        self.assertEqual(rv.status_code, 201)
+        rv = self.create_shoppinglist()
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
 
@@ -258,11 +227,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         # first, we create a shoppinglist by making a POST request
-        rv = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat'})
-        self.assertEqual(rv.status_code, 201)
+        rv = self.create_shoppinglist()
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
 
@@ -270,7 +235,6 @@ class ShoppinglistTestCase(unittest.TestCase):
             '/shoppinglists/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'money'})
-        self.assertEqual(rv.status_code, 201)
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
 
@@ -279,7 +243,7 @@ class ShoppinglistTestCase(unittest.TestCase):
             '/shoppinglists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),
             data={
-                "name": "Eat"
+                "name": "Go to Borabora for vacation"
             })
         self.assertIn("Shoppinglist with that name exists", str(rv2.data))
 
@@ -291,11 +255,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
-        rv = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat'})
-        self.assertEqual(rv.status_code, 201)
+        rv = self.create_shoppinglist()
         # get the shoppinglist in json
         results = json.loads(rv.data.decode())
 
@@ -303,7 +263,6 @@ class ShoppinglistTestCase(unittest.TestCase):
         res = self.client().delete(
             '/shoppinglists/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),)
-        self.assertEqual(res.status_code, 200)
 
         # Test to see if it exists
         result = self.client().get(
@@ -318,24 +277,10 @@ class ShoppinglistTestCase(unittest.TestCase):
         access_token = json.loads(result.data.decode())['access_token']
 
         rv = self.client().post(
-            '/shoppinglists/',
+            '/shoppinglists/ggggg',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'Eat'})
-        self.assertEqual(rv.status_code, 201)
-        # get the shoppinglist in json
-        results = json.loads(rv.data.decode())
-
-        # delete the shoppinglist we just created
-        res = self.client().delete(
-            '/shoppinglists/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token),)
-        self.assertEqual(res.status_code, 200)
-
-        # Test to see if it exists
-        result = self.client().get(
-            '/shoppinglists/ggggggg1',
-            headers=dict(Authorization="Bearer " + access_token))
-        self.assertIn("Page not found", str(result.data))
+        self.assertIn("Page not found", str(rv.data))
 
     def test_bad_request(self):
         """Test API can create a shoppinglist (POST request)"""

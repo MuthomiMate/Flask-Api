@@ -37,8 +37,10 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         }
         return self.client().post('/auth/login', data=user_data)
 
-    def test_shoppingitem_creation(self):
-        """Test API can create a shoppingitem (POST request)"""
+    def create_shoppinglistitem(self):
+        """
+        create a shopping list fior a user
+        """
         self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
@@ -48,12 +50,14 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             '/shoppinglists/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist)
-        # create a shoppinglistitem by making a POST request
-        res = self.client().post(
+        return self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglistitem)
-        self.assertEqual(res.status_code, 201)
+
+    def test_shoppingitem_creation(self):
+        """Test API can create a shoppingitem (POST request)"""
+        res = self.create_shoppinglistitem()
         self.assertIn('Go to Borabora', str(res.data))
 
     def test_api_can_get_all_shoppingitems_in_a_shoppinglist(self):
@@ -72,7 +76,6 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglistitem)
-        self.assertEqual(res.status_code, 201)
 
         # get all the shoppinglistitems in a certain shoppinglist that belong to the test user by making a GET request
         res = self.client().get(
@@ -99,9 +102,6 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglistitem)
-
-        # assert that the shoppinglist is created 
-        self.assertEqual(rv.status_code, 201)
         # get the response data in json format
         results = json.loads(rv.data.decode())
 
@@ -129,7 +129,6 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'Eat pray and love'})
-        self.assertEqual(rv.status_code, 201)
         # get the json with the shoppinglist
         results = json.loads(rv.data.decode())
 
@@ -140,7 +139,6 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             data={
                 "name": "Dont just eat but also pray and love "
             })
-        self.assertEqual(rv.status_code, 200)
 
         # finally, we get the edited shoppinglist to see if it is actually edited.
         results = self.client().get(
@@ -165,7 +163,6 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'Eat pray and love'})
-        self.assertEqual(rv.status_code, 201)
         # get the shoppinglist in json
         results = json.loads(rv.data.decode())
 
@@ -173,7 +170,6 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
         res = self.client().delete(
             '/shoppinglists/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),)
-        self.assertEqual(res.status_code, 200)
 
         # Test to see if it exists
         result = self.client().get(
