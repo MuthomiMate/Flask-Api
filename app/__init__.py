@@ -29,6 +29,11 @@ def create_app(config_name):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
 
+    @app.route('/', methods=[ 'GET'])
+    def index():
+
+         return redirect("https://docs.shoppinglistapi7.apiary.io")
+
     @app.errorhandler(404)
     def not_found(error):
         """ handles error when users enters inappropriate endpoint """
