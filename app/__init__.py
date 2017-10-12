@@ -7,7 +7,7 @@ from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, abort, make_response, redirect
 
 # local import
 
