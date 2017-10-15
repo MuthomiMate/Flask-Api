@@ -19,23 +19,15 @@ class ShoppinglistTestCase(unittest.TestCase):
             db.drop_all()
             db.create_all()
 
-    def register_user(self, email="user@test.com", password="test1234"):
-        """This helper method helps register a test user."""
-        user_data = {
-            'email': email,
-            'password': password
-        }
-        return self.client().post('/auth/register', data=user_data)
-
     def login_user(self, email="user@test.com", password="test1234"):
         """This helper method helps log in a test user."""
         user_data = {
             'email': email,
             'password': password
         }
+        self.client().post('/auth/register', data=user_data)
         return self.client().post('/auth/login', data=user_data)
     def create_shoppinglist(self):
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -53,7 +45,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_exists_shoppinglist_creation(self):
         """Test API cannot create a shoppinglist that exists (POST request)"""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -65,7 +56,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_empty_shoppinglist_creation(self):
         """Test API can create a shoppinglist (POST request)"""
-        self.register_user()
         name = {
             'name' : ''
         }
@@ -81,7 +71,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_name_with_special_characters_shoppinglist_creation(self):
         """Test API cannot create a shoppinglist with special characters (POST request)"""
-        self.register_user()
         name = {
             'name' : '////////'
         }
@@ -97,7 +86,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_api_can_get_all_shoppinglists(self):
         """Test API can get a shoppinglist (GET request)."""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -116,7 +104,6 @@ class ShoppinglistTestCase(unittest.TestCase):
         self.assertIn('Go to Borabora', str(res.data))
     def test_api_can_get_withouta_shoppinglist(self):
         """Test API can get a shoppinglist (GET request)."""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -130,7 +117,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_api_can_get_shoppinglist_by_id(self):
         """Test API can get a single shoppinglist by using it's id."""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -149,7 +135,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_api_can_get_nonexisting_shoppinglist_by_id(self):
         """Test API can get a single shoppinglist by using it's id."""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -162,7 +147,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_shoppinglist_can_be_edited(self):
         """Test API can edit an existing shoppinglist. (PUT request)"""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -182,7 +166,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_shoppinglist_can_be_edited_with_empty_name(self):
         """Test API can edit  shoppinglist with empty name. (PUT request)"""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -202,7 +185,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_shoppinglist_can_be_edited_with_special_characters(self):
         """Test API can edit  shoppinglist with empty name. (PUT request)"""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -222,7 +204,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_shoppinglist_can_be_edited_with_existing_name(self):
         """Test API can edit an existing shoppinglist with a name for another shoppinglist. (PUT request)"""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -251,7 +232,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_shoppinglist_deletion(self):
         """Test API can delete an existing shoppinglist. (DELETE request)."""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -272,7 +252,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_page_not_found(self):
         """Test API can delete an existing shoppinglist. (DELETE request)."""
-        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
 
@@ -284,7 +263,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_bad_request(self):
         """Test API can create a shoppinglist (POST request)"""
-        self.register_user()
         name = {
             'names' : ''
         }
@@ -300,7 +278,6 @@ class ShoppinglistTestCase(unittest.TestCase):
 
     def test_method_not_allowed(self):
         """Test API can create a shoppinglist (POST request)"""
-        self.register_user()
         name = {
             'names' : ''
         }
