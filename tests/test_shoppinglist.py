@@ -141,8 +141,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         result = self.client().get(
             '/shoppinglists/5',
             headers=dict(Authorization="Bearer " + access_token))
-        # assert that the shoppinglist is actually returned given its ID
-        self.assertEqual(result.status_code, 200)
+        # assert that the shoppinglist is actually returned given its ID 
         self.assertIn('That shoppinglists does not exist', str(result.data))
 
     def test_shoppinglist_can_be_edited(self):
