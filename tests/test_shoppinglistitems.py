@@ -21,166 +21,126 @@ class ShoppinglistitemsTestCase(unittest.TestCase):
             db.drop_all()
             db.create_all()
 
-    def register_user(self, email="user@test.com", password="test1234"):
-        """This helper method helps register a test user."""
-        user_data = {
-            'email': email,
-            'password': password
-        }
-        return self.client().post('/auth/register', data=user_data)
-
     def login_user(self, email="user@test.com", password="test1234"):
-        """This helper method helps log in a test user."""
+        """This helper method helps log and register in a test user."""
         user_data = {
             'email': email,
             'password': password
         }
-        return self.client().post('/auth/login', data=user_data)
-
-    def test_shoppingitem_creation(self):
-        """Test API can create a shoppingitem (POST request)"""
-        self.register_user()
-        result = self.login_user()
+        self.client().post('/auth/register', data=user_data)
+        result = self.client().post('/auth/login', data=user_data)
         access_token = json.loads(result.data.decode())['access_token']
+        return access_token
+
+    def create_shoppinglistitem(self):
+        """
+        create a shopping list fior a user
+        """
+        
+        access_token = self.login_user()
 
         # create a shoppinglist by making a POST request
         self.client().post(
             '/shoppinglists/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist)
-        # create a shoppinglistitem by making a POST request
-        res = self.client().post(
+        # create shopping list items
+        return self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglistitem)
-        self.assertEqual(res.status_code, 201)
+
+    def test_shoppingitem_creation(self):
+        """Test API can create a shoppingitem (POST request)"""
+        res = self.create_shoppinglistitem()
         self.assertIn('Go to Borabora', str(res.data))
 
     def test_api_can_get_all_shoppingitems_in_a_shoppinglist(self):
         """Test API can get a shoppinglist (GET request)."""
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-
-        # create a shoppinglist by making a POST request
-        self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        # create a shoppinglistitem by making a POST request
-        res = self.client().post(
-            '/shoppinglists/1/items/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglistitem)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.login_user()
+        self.create_shoppinglistitem()
 
         # get all the shoppinglistitems in a certain shoppinglist that belong to the test user by making a GET request
         res = self.client().get(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
         )
-        self.assertEqual(res.status_code, 200)
         self.assertIn('Go to Borabora', str(res.data))
 
     def test_api_can_get_one_shoppingitem(self):
         """Test API can get a single shoppinglist by using it's id."""
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-
-        # create a shoppinglist by making a POST request
-        self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        
-
-        rv = self.client().post(
-            '/shoppinglists/1/items/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglistitem)
-
-        # assert that the shoppinglist is created 
-        self.assertEqual(rv.status_code, 201)
-        # get the response data in json format
-        results = json.loads(rv.data.decode())
-
+        access_token = self.login_user()
+        self.create_shoppinglistitem()
         result = self.client().get(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/1',
             headers=dict(Authorization="Bearer " + access_token))
         # assert that the shoppinglist is actually returned given its ID
-        self.assertEqual(result.status_code, 200)
         self.assertIn('Go to Borabora', str(result.data))
+    def test_api_can_get_nonexisting_shoppingitem(self):
+        """Test API can get a single shoppinglist by using it's id."""
+        access_token = self.login_user()
+        result = self.client().get(
+            '/shoppinglists/items/10',
+            headers=dict(Authorization="Bearer " + access_token))
+        # assert that the shoppinglist is actually returned given its ID
+        self.assertIn('That item does not exist', str(result.data))
 
     def test_shoppinglistitem_can_be_edited(self):
         """Test API can edit an existing shoppinglist. (PUT request)"""
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-
-        # create a shoppinglist by making a POST request
-        self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        
-
-        # first, we create a shoppinglist by making a POST request
-        rv = self.client().post(
-            '/shoppinglists/1/items/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat pray and love'})
-        self.assertEqual(rv.status_code, 201)
-        # get the json with the shoppinglist
-        results = json.loads(rv.data.decode())
+        access_token = self.login_user()
+        self.create_shoppinglistitem()
 
         # then, we edit the created shoppinglist by making a PUT request
         rv = self.client().put(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/1',
             headers=dict(Authorization="Bearer " + access_token),
             data={
                 "name": "Dont just eat but also pray and love "
             })
-        self.assertEqual(rv.status_code, 200)
+        self.assertIn('Dont just eat', str(rv.data))
+    def test_shoppinglistitem_can_be_edited_with_no_name(self):
+        """Test API can edit an existing shoppinglist. (PUT request)"""
+        access_token = self.login_user()
+        self.create_shoppinglistitem()
 
-        # finally, we get the edited shoppinglist to see if it is actually edited.
-        results = self.client().get(
-            '/shoppinglists/1/items/{}'.format(results['id']),
-            headers=dict(Authorization="Bearer " + access_token))
-        self.assertIn('Dont just eat', str(results.data))
-
-    def test_shoppinglistitem_deletion(self):
-        """Test API can delete an existing shoppingitem. (DELETE request)."""
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-
-        # create a shoppinglist by making a POST request
-        self.client().post(
-            '/shoppinglists/',
+        # then, we edit the created shoppinglist by making a PUT request
+        rv = self.client().put(
+            '/shoppinglists/items/1',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        
+            data={
+                "name": ''
+            })
+        self.assertIn('Name cannot be empty', str(rv.data))
 
+    def test_shoppinglistitem_can_be_edited_with_existing_name(self):
+        """Test API can edit an existing shoppinglist. (PUT request)"""
+        access_token = self.login_user()
+        self.create_shoppinglistitem()
         rv = self.client().post(
             '/shoppinglists/1/items/',
             headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'Eat pray and love'})
-        self.assertEqual(rv.status_code, 201)
-        # get the shoppinglist in json
+            data={'name': 'pray'})
         results = json.loads(rv.data.decode())
+
+        # then, we edit the created shoppinglist by making a PUT request
+        rv = self.client().put(
+            '/shoppinglists/items/{}'.format(results['id']),
+            headers=dict(Authorization="Bearer " + access_token),
+            data={
+                "name": 'Go to Borabora for vacation'
+            })
+        self.assertIn('shopping item with that name exist', str(rv.data))
+
+    def test_shoppinglistitem_deletion(self):
+        """Test API can delete an existing shoppingitem. (DELETE request)."""
+        access_token = self.login_user()
+        self.create_shoppinglistitem()
 
         # delete the shoppinglist we just created
         res = self.client().delete(
-            '/shoppinglists/1/items/{}'.format(results['id']),
+            '/shoppinglists/items/1',
             headers=dict(Authorization="Bearer " + access_token),)
         self.assertEqual(res.status_code, 200)
-
-        # Test to see if it exists
-        result = self.client().get(
-            '/shoppinglists/1/items/1',
-            headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(result.status_code, 200)
 
     def tearDown(self):
         """teardown all initialized variables."""

@@ -1,10 +1,13 @@
 # app/ --init__.py
 import json
 import re
+import random
+import string
 from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 
-from flask import request, jsonify, abort, make_response
+from flask import request, jsonify, abort, make_response, redirect
 
 # local import
 
@@ -25,6 +28,11 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
     db.init_app(app)
+
+    @app.route('/', methods=[ 'GET'])
+    def index():
+
+        return redirect("http://docs.shoppinglistapi7.apiary.io")
 
     @app.errorhandler(404)
     def not_found(error):
@@ -291,17 +299,17 @@ def create_app(config_name):
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
                             shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
-                                                                                shoppinglistname=shoppinglist_id).first()
+                                                                                shoppinglistid=shoppinglist_id).first()
                             if not shoppinglistitemexist:
                                 shoppinglistitem = Shoppinglistitems(name=name,
-                                                                    shoppinglistname=shoppinglist_id)
+                                                                    shoppinglistid=shoppinglist_id)
                                 shoppinglistitem.save()
                                 response = jsonify({
                                     'id': shoppinglistitem.id,
                                     'name': shoppinglistitem.name,
                                     'date_created': shoppinglistitem.date_created,
                                     'date_modified': shoppinglistitem.date_modified,
-                                    'shoppinglistname': shoppinglist_id
+                                    'shoppinglistid': shoppinglist_id
                                 })
 
                                 return make_response(response), 201
@@ -319,7 +327,7 @@ def create_app(config_name):
                 else:
                     # GET all the shoppingitems in this shopinglist created by this user
 
-                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistname=
+                    shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistid=
                                                                             shoppinglist_id). all()
                     if not shoppinglistsitemss:
                         response = {
@@ -334,7 +342,7 @@ def create_app(config_name):
                             'name': shoppinglistitem.name,
                             'date_created': shoppinglistitem.date_created,
                             'date_modified': shoppinglistitem.date_modified,
-                            'shoppinglistname': shoppinglist_id
+                            'shoppinglistid': shoppinglist_id
                         }
                         results.append(obj)
 
@@ -347,9 +355,9 @@ def create_app(config_name):
                 }
                 return make_response(jsonify(response)), 401
 
-    @app.route('/shoppinglists/<int:shoppinglist_id>/items/<int:id>',
+    @app.route('/shoppinglists/items/<int:id>',
                methods=['GET', 'PUT', 'DELETE'])
-    def shoppinglistitem_manipulation(id, shoppinglist_id):
+    def shoppinglistitem_manipulation(id):
         # get the access token from the authorization header
         auth_header = request.headers.get('Authorization')
         access_token = auth_header.split(" ")[1]
@@ -360,6 +368,17 @@ def create_app(config_name):
 
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
+                # Get the shoppinglist with the id specified from the URL (<int:id>)
+                shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
+                if not shoppinglistitems:
+                    # There is no shoppinglistitem with this ID for this User
+                    response = {
+                        'message': 'That item does not exist'
+                    }
+                    return make_response(jsonify(response))
+
+                shoppinglist_idf = Shoppinglistitems.query.filter_by(id=id).first()
+                shoppinglist_id=shoppinglist_idf.shoppinglistid
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id).first()
                 if not shoppinglist:
                     response = {
@@ -370,17 +389,10 @@ def create_app(config_name):
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
                 if not shoppinglist:
                     response = {
-                        'message' : 'That shoppinglists does not exist'
+                        'message' : 'You do not have permission to view the items'
                     }
                     return make_response(jsonify(response))
-                # Get the shoppinglist with the id specified from the URL (<int:id>)
-                shoppinglistitems = Shoppinglistitems.query.filter_by(id=id).first()
-                if not shoppinglistitems:
-                    # There is no shoppinglistitem with this ID for this User
-                    response = {
-                        'message': 'That item does not exist in this shopping list'
-                    }
-                    return make_response(jsonify(response))
+                
 
                 if request.method == "DELETE":
                     # delete the shoppingitem using our delete method
@@ -399,7 +411,7 @@ def create_app(config_name):
                         return make_response(jsonify(response))
                     if re.match("[a-zA-Z0-9- .]+$", name):
                         shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
-                                                                                shoppinglistname=shoppinglist_id).first()
+                                                                                shoppinglistid=shoppinglist_id).first()
                         if not shoppinglistitemexist:
                             shoppinglistitems.name = name
                             shoppinglistitems.save()
@@ -409,7 +421,7 @@ def create_app(config_name):
                                 'name': shoppinglistitems.name,
                                 'date_created': shoppinglistitems.date_created,
                                 'date_modified': shoppinglistitems.date_modified,
-                                'shoppinglistname': shoppinglistitems.shoppinglistname
+                                'shoppinglistid': shoppinglistitems.shoppinglistid
                             }
                             return make_response(jsonify(response)), 200
                         else:
@@ -429,7 +441,7 @@ def create_app(config_name):
                         'name': shoppinglistitems.name,
                         'date_created': shoppinglistitems.date_created,
                         'date_modified': shoppinglistitems.date_modified,
-                        'shoppinglistname': shoppinglistitems.shoppinglistname
+                        'shoppinglistid': shoppinglistitems.shoppinglistid
                     }
                     return make_response(jsonify(response)), 200
             else:
@@ -440,6 +452,84 @@ def create_app(config_name):
                 }
                 # return an error response, telling the user he is Unauthorized
                 return make_response(jsonify(response)), 401
+    @app.route('/auth/ccpas',
+               methods=['PUT'])
+    def change_password():
+         # get the access token from the authorization header
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+
+        if access_token:
+            # Get the user id related to this access token
+            user_id = User.decode_token(access_token)
+
+            if not isinstance(user_id, str):
+                # If the id is not a string(error), we have a user id
+                if request.method == "PUT":
+                    old_password = str(request.data.get('old_password', ''))
+                    new_password = str(request.data.get('new_password', ''))
+
+                    if old_password == '' or new_password == '':
+                        response = {
+                            'mesage' : 'please enter old and new password'
+                        }
+                        return make_response(jsonify(response))
+                    else:
+
+                        user = User.query.filter_by(id=user_id).first()
+                        
+                        if user:
+                            if Bcrypt().check_password_hash(user.password, old_password):
+                                encrypted_password = Bcrypt().generate_password_hash(new_password).decode()
+                                user.password = encrypted_password
+                                user.save()
+                                response = {
+                                    'message' : 'password changed sucessfully. Please login again'
+                                }
+                                return make_response(jsonify(response))
+                            else:
+                                response = { 
+                                    'message' : 'password entered is incorrect. Try again!'
+                                }
+                                return make_response(jsonify(response))
+
+            else: 
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
+                }
+                # return an error response, telling the user he is Unauthorized
+                return make_response(jsonify(response)), 401
+
+    @app.route('/auth/passreset',
+               methods=['PUT'])
+    def reset_password():
+        email = str(request.data.get('email', ''))
+        if not email:
+            response = {
+                'message' : 'Please enter email address'
+            }
+            return make_response(jsonify(response))
+        else:
+            user = User.query.filter_by(email=email).first()
+            gen_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            if user:
+                #user with that email exists
+                encrypted_password = Bcrypt().generate_password_hash(gen_password).decode()
+                user.password = encrypted_password
+                user.save()
+                response = {
+                    'message' : 'You password is '+ str(gen_password) + '. Please change the password after login'
+                }
+                return make_response(jsonify(response))
+
+            else:
+                response = {
+                    'message' : 'user not registered. Please register'
+                }
+                return make_response(jsonify(response))
+
 
     # import the authentication blueprint and register it on the app
     from .auth import auth_blueprint

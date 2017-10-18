@@ -120,12 +120,12 @@ class Shoppinglistitems(db.Model):
     date_modified = db.Column(
         db.DateTime, default=db.func.current_timestamp(),
         onupdate=db.func.current_timestamp())
-    shoppinglistname = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
+    shoppinglistid = db.Column(db.Integer, db.ForeignKey(Shoppinglist.id))
 
-    def __init__(self, name, shoppinglistname):
+    def __init__(self, name, shoppinglistid):
         """initialize with name."""
         self.name = name
-        self.shoppinglistname = shoppinglistname
+        self.shoppinglistid = shoppinglistid
 
     def save(self):
         db.session.add(self)
@@ -133,7 +133,7 @@ class Shoppinglistitems(db.Model):
 
     @staticmethod
     def get_all():
-        return Shoppinglistitems.query.filter_by(shoppinglistname=shoppinglist_id)
+        return Shoppinglistitems.query.filter_by(shoppinglistid=shoppinglist_id)
 
     def delete(self):
         db.session.delete(self)
