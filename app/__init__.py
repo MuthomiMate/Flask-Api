@@ -199,12 +199,17 @@ def create_app(config_name):
             if not isinstance(user_id, str):
                 # If the id is not a string(error), we have a user id
                 # Get the shoppinglist with the id specified from the URL (<int:id>)
-                shoppinglist = Shoppinglist.query.filter_by(id=id, created_by=user_id).first()
+                shoppinglist = Shoppinglist.query.filter_by(id=id).first()
                 if not shoppinglist:
                     response = {
                         'message' : 'That shoppinglists does not exist'
                     }
                     return make_response(jsonify(response))
+                shoppinglistowner = Shoppinglist.query.filter_by(id=id, created_by=user_id).first()
+                if not shoppinglistowner:
+                    response = {
+                        'message' : 'You do not have permission to view that shoppinglist'
+                    }
 
                 if request.method == "DELETE":
                     # delete the shoppinglist using our delete method
@@ -284,7 +289,7 @@ def create_app(config_name):
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
                 if not shoppinglist:
                     response = {
-                        'message' : 'That shoppinglists does not exist'
+                        'message' : 'You do not have permission to view that shoppinglist'
                     }
                     return make_response(jsonify(response))
 

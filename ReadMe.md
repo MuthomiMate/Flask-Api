@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/MuthomiMate/Flask-Api.svg?branch=dev)](https://travis-ci.org/MuthomiMate/Flask-Api)
 [![Coverage Status](https://coveralls.io/repos/github/MuthomiMate/Flask-Api/badge.svg?branch=dev)](https://coveralls.io/github/MuthomiMate/Flask-Api?branch=dev)
-[![Code Health](https://landscape.io/github/MuthomiMate/Flask-Api/dev/landscape.svg?style=flat)](https://landscape.io/github/MuthomiMate/Flask-Api/dev)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6de421629c8a4966bcf49be803e8c65f)](https://www.codacy.com/app/MuthomiMate/Flask-Api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=MuthomiMate/Flask-Api&amp;utm_campaign=Badge_Grade)
 # FLASK API
 API for shopping list application
