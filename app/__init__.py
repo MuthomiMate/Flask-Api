@@ -210,13 +210,15 @@ def create_app(config_name):
                     response = {
                         'message' : 'You do not have permission to view that shoppinglist'
                     }
+                    return make_response(jsonify(response))
 
                 if request.method == "DELETE":
                     # delete the shoppinglist using our delete method
                     shoppinglist.delete()
-                    return {
+                    response = {
                         "message": "shoppinglist {} deleted".format(shoppinglist.id)
-                    }, 200
+                    }
+                    return make_response(jsonify(response)), 200
 
                 elif request.method == 'PUT':
                     # Obtain the new name of the shoppinglist from the request data
@@ -385,11 +387,6 @@ def create_app(config_name):
                 shoppinglist_idf = Shoppinglistitems.query.filter_by(id=id).first()
                 shoppinglist_id=shoppinglist_idf.shoppinglistid
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id).first()
-                if not shoppinglist:
-                    response = {
-                        'message' : 'That shopping list does not exist'
-                    }
-                    return make_response(jsonify(response))
                 #check if the shopping_list belongs to that person
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
                 if not shoppinglist:
