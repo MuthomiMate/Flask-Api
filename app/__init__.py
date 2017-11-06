@@ -146,7 +146,7 @@ def create_app(config_name):
                                 "message": "You do not have  any shopping list"
                             })
                             return make_response(response)
-                        limit = int(request.args.get('limit', 2))
+                        limit = int(request.args.get('limit', 10))
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
                         order_by(Shoppinglist.name.asc()).paginate(page, limit)
@@ -177,9 +177,7 @@ def create_app(config_name):
                                 'previous page': prev_page,
                                 'next page': next_page
                             }
-                            combined= []
-                            combined.append(results, response)
-                            return make_response(jsonify(combined)), 200
+                            return make_response(jsonify(response)), 200
 
             else:
                 # user is not legit, so the payload is an error message
