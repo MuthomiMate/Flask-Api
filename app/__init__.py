@@ -177,7 +177,9 @@ def create_app(config_name):
                                 'previous page': prev_page,
                                 'next page': next_page
                             }
-                            return make_response(jsonify(results)), 200
+                            combined= []
+                            combined.append(results, response)
+                            return make_response(jsonify(combined)), 200
 
             else:
                 # user is not legit, so the payload is an error message
