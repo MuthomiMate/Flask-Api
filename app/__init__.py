@@ -173,9 +173,9 @@ def create_app(config_name):
                                     str(page_no - 1)
                                 )
                             response = {
-                                'shopping lists': results,
-                                'previous page': prev_page,
-                                'next page': next_page
+                                'shopping_lists': results,
+                                'previous_page': prev_page,
+                                'next_page': next_page
                             }
                             return make_response(jsonify(response)), 200
 
