@@ -163,12 +163,12 @@ def create_app(config_name):
                             next_page = 'None'
                             prev_page = 'None'
                             if paginated_lists.has_next:
-                                next_page = '/shoppinglists/?limit={}&page={}'.format(
+                                next_page = '?limit={}&page={}'.format(
                                     str(limit),
                                     str(page_no + 1)
                                 )
                             if paginated_lists.has_prev:
-                                prev_page = '/shoppinglists/?limit={}&page={}'.format(
+                                prev_page = '?limit={}&page={}'.format(
                                     str(limit),
                                     str(page_no - 1)
                                 )
