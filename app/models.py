@@ -12,14 +12,16 @@ class User(db.Model):
 
     # Define the columns of the users table, starting with the primary key
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)
     shoppinglists = db.relationship(
         'Shoppinglist', order_by='Shoppinglist.id', cascade="all, delete-orphan")
 
-    def __init__(self, email, password):
+    def __init__(self, email, password, name):
         """Initialize the user with an email and a password."""
         self.email = email
+        self.name = name
         self.password = Bcrypt().generate_password_hash(password).decode()
 
     def password_is_valid(self, password):

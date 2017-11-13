@@ -336,14 +336,45 @@ def create_app(config_name):
 
                     shoppinglistsitemss = Shoppinglistitems.query.filter_by(shoppinglistid=
                                                                             shoppinglist_id). all()
+                    search_query = request.args.get("q")
+                    limit = int(request.args.get('limit', 1))
+                    page_no = int(request.args.get('page', 1))
+                    results = []
+                    if search_query:
+                        search_results = Shoppinglistitems.query.filter(Shoppinglistitems.name.ilike(
+                            '%' + search_query + '%')).filter_by(shoppinglistid=
+                                                                            shoppinglist_id).all()
+                        if search_results:
+                            for shoppinglistitem in search_results:
+                                obj = {
+                                    'id': shoppinglistitem.id,
+                                    'name': shoppinglistitem.name,
+                                    'date_created': shoppinglistitem.date_created,
+                                    'date_modified': shoppinglistitem.date_modified,
+                                    'shoppinglistid': shoppinglist_id
+                                }
+                                results.append(obj)
+                            return make_response(jsonify(results)), 200
+
+                        # search_results does not contain anything, status code=Not found
+                        response = {
+                            'message': "Shopping list name does not exist"
+                        }
+                        return make_response(jsonify(response))
+                    
                     if not shoppinglistsitemss:
                         response = {
                             'message' : 'No items in this shopping list'
                         }
                         return make_response(jsonify(response))
                     results = []
+                    limit = int(request.args.get('limit', 2))
+                    page = int(request.args.get('page', 1))
+                    paginated_lists = Shoppinglistitems.query.filter_by(shoppinglistid=
+                                                                            shoppinglist_id).\
+                    order_by(Shoppinglistitems.name.asc()).paginate(page, limit)
 
-                    for shoppinglistitem in shoppinglistsitemss:
+                    for shoppinglistitem in paginated_lists.items:
                         obj = {
                             'id': shoppinglistitem.id,
                             'name': shoppinglistitem.name,
@@ -352,8 +383,25 @@ def create_app(config_name):
                             'shoppinglistid': shoppinglist_id
                         }
                         results.append(obj)
-
-                    return make_response(jsonify(results)), 200
+                    
+                    next_page = 'None'
+                    prev_page = 'None'
+                    if paginated_lists.has_next:
+                        next_page = '?limit={}&page={}'.format(
+                            str(limit),
+                            str(page_no + 1)
+                        )
+                    if paginated_lists.has_prev:
+                        prev_page = '?limit={}&page={}'.format(
+                            str(limit),
+                            str(page_no - 1)
+                        )
+                    response = {
+                        'shopping_lists': results,
+                        'previous_page': prev_page,
+                        'next_page': next_page
+                    }
+                    return make_response(jsonify(response)), 200
             else:
                 # user is not legit, so the payload is an error message
                 message = user_id
