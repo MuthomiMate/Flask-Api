@@ -3,9 +3,11 @@ import json
 import re
 import random
 import string
+import os
 from flask_api import FlaskAPI, status
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail, Message
 
 from flask import request, jsonify, abort, make_response, redirect
 
@@ -27,6 +29,13 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+    app.config['MAIL_SERVER']='smtp.gmail.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USERNAME'] = os.getenv('Mail_username')
+    app.config['MAIL_PASSWORD'] = os.getenv('mail_password')
+    app.config['MAIL_USE_TLS'] = False
+    app.config['MAIL_USE_SSL'] = True
+    mail = Mail(app)
     db.init_app(app)
 
     @app.route('/', methods=[ 'GET'])
@@ -569,8 +578,11 @@ def create_app(config_name):
                 encrypted_password = Bcrypt().generate_password_hash(gen_password).decode()
                 user.password = encrypted_password
                 user.save()
+                msg = Message('Password Reset', sender='muthomimate@gmail.com', recipients=[email])
+                msg.body = 'You password is '+ str(gen_password) + '. Please change the password after login'
+                mail.send(msg)
                 response = {
-                    'message' : 'You password is '+ str(gen_password) + '. Please change the password after login'
+                    'message' : 'Password has been sent to your email'
                 }
                 return make_response(jsonify(response))
 
