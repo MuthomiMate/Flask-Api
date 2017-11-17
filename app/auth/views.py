@@ -15,8 +15,9 @@ class RegistrationView(MethodView):
         """Handle POST request for this view. Url ---> /auth/register"""
         email = str(request.data.get('email', ''))
         name =str(request.data.get('name', ''))
+        namesr = name.replace(' ', '')
         password = str(request.data.get('password', ''))
-        if email == '' or password == '' or name == '':
+        if email == '' or password == '' or namesr == '':
             response = {
                 'message': 'Email, Password and name cannot be empty'
             }
