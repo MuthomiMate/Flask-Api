@@ -92,7 +92,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'Enter name'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 409
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
@@ -111,12 +111,12 @@ def create_app(config_name):
                                 response = {
                                     'message' : 'That shopping list exists'
                                 }
-                                return make_response(jsonify(response))
+                                return make_response(jsonify(response)), 400
                         else:
                             response = {
                                 'message' : 'Name should not contain special characters'
                             }
-                            return make_response(jsonify(response))
+                            return make_response(jsonify(response)), 400
 
                 else:
                     # GET all the shoppinglists created by this user
@@ -154,7 +154,7 @@ def create_app(config_name):
                             response = jsonify({
                                 "message": "You do not have  any shopping list"
                             })
-                            return make_response(response)
+                            return make_response(response), 200
                         limit = int(request.args.get('limit', 10))
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
@@ -213,13 +213,13 @@ def create_app(config_name):
                     response = {
                         'message' : 'That shoppinglists does not exist'
                     }
-                    return make_response(jsonify(response))
+                    return make_response(jsonify(response)), 400
                 shoppinglistowner = Shoppinglist.query.filter_by(id=id, created_by=user_id).first()
                 if not shoppinglistowner:
                     response = {
                         'message' : 'You do not have permission to view that shoppinglist'
                     }
-                    return make_response(jsonify(response))
+                    return make_response(jsonify(response)), 400
 
                 if request.method == "DELETE":
                     # delete the shoppinglist using our delete method
@@ -236,7 +236,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'Name cannot be empty'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
                     if re.match("[a-zA-Z0-9- .]+$", name):
                         shoppinglistexist = Shoppinglist.query.filter_by(name=request.data['name'], created_by=user_id).first()
                         if not shoppinglistexist:
@@ -255,12 +255,12 @@ def create_app(config_name):
                             response= {
                                 'message' : 'Shoppinglist with that name exists'
                             }
-                            return make_response(jsonify(response))
+                            return make_response(jsonify(response)), 400
                     else:
                         response = {
                             'message' : 'Name should not have special characters'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
                 else:
                     # Handle GET request, sending back the shoppinglist to the user
                     response = {
@@ -296,13 +296,13 @@ def create_app(config_name):
                     response = {
                         'message' : 'That shopping list does not exist'
                     }
-                    return make_response(jsonify(response))
+                    return make_response(jsonify(response)), 400
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
                 if not shoppinglist:
                     response = {
                         'message' : 'You do not have permission to view that shoppinglist'
                     }
-                    return make_response(jsonify(response))
+                    return make_response(jsonify(response)), 401
 
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
@@ -310,7 +310,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'Item name cannot be empty'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
@@ -333,12 +333,12 @@ def create_app(config_name):
                                 response = {
                                     'message' : 'shopping item exists'
                                 }
-                                return make_response(jsonify(response))
+                                return make_response(jsonify(response)), 
                         else:
                             response = {
                                 'message' : 'Name cannot have special characters'
                             }
-                            return make_response(jsonify(response))
+                            return make_response(jsonify(response)), 400
 
                 else:
                     # GET all the shoppingitems in this shopinglist created by this user
@@ -369,13 +369,13 @@ def create_app(config_name):
                         response = {
                             'message': "Shopping list name does not exist"
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 200
                     
                     if not shoppinglistsitemss:
                         response = {
                             'message' : 'No items in this shopping list'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 200
                     results = []
                     limit = int(request.args.get('limit', 2))
                     page = int(request.args.get('page', 1))
@@ -439,7 +439,7 @@ def create_app(config_name):
                     response = {
                         'message': 'That item does not exist'
                     }
-                    return make_response(jsonify(response))
+                    return make_response(jsonify(response)), 400
 
                 shoppinglist_idf = Shoppinglistitems.query.filter_by(id=id).first()
                 shoppinglist_id=shoppinglist_idf.shoppinglistid
@@ -450,7 +450,7 @@ def create_app(config_name):
                     response = {
                         'message' : 'You do not have permission to view the items'
                     }
-                    return make_response(jsonify(response))
+                    return make_response(jsonify(response)), 401
                 
 
                 if request.method == "DELETE":
@@ -467,7 +467,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'Name cannot be empty'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
                     if re.match("[a-zA-Z0-9- .]+$", name):
                         shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
                                                                                 shoppinglistid=shoppinglist_id).first()
@@ -487,12 +487,12 @@ def create_app(config_name):
                             response = {
                                 'message' : 'shopping item with that name exist'
                             }
-                            return make_response(jsonify(response))
+                            return make_response(jsonify(response)), 409
                     else:
                         response = {
                             'message' : 'name should not contain special characters'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
                 else:
                     # Handle GET request, sending back the shoppinglist item to the user
                     response = {
@@ -532,7 +532,7 @@ def create_app(config_name):
                         response = {
                             'mesage' : 'please enter old and new password'
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 400
                     else:
 
                         user = User.query.filter_by(id=user_id).first()
@@ -545,12 +545,12 @@ def create_app(config_name):
                                 response = {
                                     'message' : 'password changed sucessfully. Please login again'
                                 }
-                                return make_response(jsonify(response))
+                                return make_response(jsonify(response)), 200
                             else:
                                 response = { 
                                     'message' : 'password entered is incorrect. Try again!'
                                 }
-                                return make_response(jsonify(response))
+                                return make_response(jsonify(response)), 400
 
             else: 
                 # user is not legit, so the payload is an error message
@@ -567,7 +567,7 @@ def create_app(config_name):
         email = str(request.data.get('email', ''))
         if not email:
             response = {
-                'message' : 'Please enter email address'
+                'message' : 'Please enter email address', 400
             }
             return make_response(jsonify(response))
         else:
@@ -584,13 +584,13 @@ def create_app(config_name):
                 response = {
                     'message' : 'Password has been sent to your email'
                 }
-                return make_response(jsonify(response))
+                return make_response(jsonify(response)), 200
 
             else:
                 response = {
                     'message' : 'user not registered. Please register'
                 }
-                return make_response(jsonify(response))
+                return make_response(jsonify(response)), 401
 
 
     # import the authentication blueprint and register it on the app

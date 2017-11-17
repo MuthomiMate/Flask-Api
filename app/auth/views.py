@@ -20,25 +20,25 @@ class RegistrationView(MethodView):
             response = {
                 'message': 'Email, Password and name cannot be empty'
             }
-            return make_response(jsonify(response)), 404
+            return make_response(jsonify(response)), 400
         if not re.match("[a-zA-Z0-9- .]+$", name):
             response = {
                 'message' : 'Enter a correct name'
             }
-            return make_response(jsonify(response)), 404
+            return make_response(jsonify(response)), 400
         regex = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
         reg_pass = r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
         if not re.search(regex, email):
             response = {
                 'message' : 'Enter a correct email address'
             }
-            return make_response(jsonify(response)), 404
+            return make_response(jsonify(response)), 400
         if not re.search(reg_pass, password):
             response = {
                 'message' :
                 'Password should be at least 8 characters both numbers and letters'
             }
-            return make_response(jsonify(response))
+            return make_response(jsonify(response)), 400
 
         # Query to see if the user already exists
         user = User.query.filter_by(email=request.data['email']).first()
@@ -58,7 +58,7 @@ class RegistrationView(MethodView):
                     'message': 'You registered successfully. Please log in.'
                 }
                 # return a response notifying the user that they registered successfully
-                return make_response(jsonify(response)), 201
+                return make_response(jsonify(response)), 200
             except Exception as e:
                 # An error occured, therefore return a string message containing the error
                 response = {
