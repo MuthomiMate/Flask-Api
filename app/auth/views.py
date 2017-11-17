@@ -58,7 +58,7 @@ class RegistrationView(MethodView):
                     'message': 'You registered successfully. Please log in.'
                 }
                 # return a response notifying the user that they registered successfully
-                return make_response(jsonify(response)), 201
+                return make_response(jsonify(response)), 200
             except Exception as e:
                 # An error occured, therefore return a string message containing the error
                 response = {
@@ -94,7 +94,7 @@ class LoginView(MethodView):
                         'access_token': access_token.decode(),
                         'name': user.name
                     }
-                    return make_response(jsonify(response)), 201
+                    return make_response(jsonify(response)), 200
             else:
                 # User does not exist. Therefore, we return an error message
                 response = {

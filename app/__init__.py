@@ -567,9 +567,9 @@ def create_app(config_name):
         email = str(request.data.get('email', ''))
         if not email:
             response = {
-                'message' : 'Please enter email address', 400
+                'message' : 'Please enter email address'
             }
-            return make_response(jsonify(response))
+            return make_response(jsonify(response)), 400
         else:
             user = User.query.filter_by(email=email).first()
             gen_password = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
