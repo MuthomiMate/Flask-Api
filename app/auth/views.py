@@ -16,7 +16,7 @@ class RegistrationView(MethodView):
         email = str(request.data.get('email', ''))
         name =str(request.data.get('name', ''))
         password = str(request.data.get('password', ''))
-        if email == '' and password == '' and name == '':
+        if email == '' or password == '' or name == '':
             response = {
                 'message': 'Email, Password and name cannot be empty'
             }
@@ -72,7 +72,7 @@ class RegistrationView(MethodView):
                 'message': 'User already exists. Please login.'
             }
 
-            return make_response(jsonify(response)), 202
+            return make_response(jsonify(response)), 400
 
 
 class LoginView(MethodView):
