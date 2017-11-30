@@ -371,7 +371,7 @@ def create_app(config_name):
                                 }
                                 results.append(obj)
                                 shoppping = {
-                                    'shoppinglist_list':results
+                                    'shopping_lists':results
                                 }
                             return make_response(jsonify(shoppping)), 200
 
