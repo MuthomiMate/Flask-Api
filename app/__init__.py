@@ -144,7 +144,7 @@ def create_app(config_name):
                                 results2 = {
                                     'shopping_lists':results
                                 }
-                            return make_response(jsonify(result2)), 200
+                            return make_response(jsonify(results2)), 200
 
                         # search_results does not contain anything, status code=Not found
                         response = {
