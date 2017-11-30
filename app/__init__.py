@@ -147,7 +147,7 @@ def create_app(config_name):
                         response = {
                             'message': "Shopping list name does not exist"
                         }
-                        return make_response(jsonify(response))
+                        return make_response(jsonify(response)), 404
                     else:
                         shoppingliss = Shoppinglist.query.filter_by(created_by=user_id).all()
                         if not shoppingliss:
@@ -242,13 +242,20 @@ def create_app(config_name):
                         if not shoppinglistexist:
                             shoppinglist.name = name
                             shoppinglist.save()
-
-                            response = {
+                            result = []
+                            result = {
                                 'id': shoppinglist.id,
                                 'name': shoppinglist.name,
                                 'date_created': shoppinglist.date_created,
                                 'date_modified': shoppinglist.date_modified,
                                 'created_by': shoppinglist.created_by
+                            }
+                            resultm = {
+                                'message': "Shoppinglist has been edited sucessfully"
+                            }
+                            response = {
+                                'shoppinglist': result
+                                'message': resultm
                             }
                             return make_response(jsonify(response)), 200
                         else:
