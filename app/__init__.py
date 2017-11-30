@@ -370,7 +370,10 @@ def create_app(config_name):
                                     'shoppinglistid': shoppinglist_id
                                 }
                                 results.append(obj)
-                            return make_response(jsonify(results)), 200
+                                shoppping = {
+                                    'shoppinglist_list':results
+                                }
+                            return make_response(jsonify(shoppping)), 200
 
                         # search_results does not contain anything, status code=Not found
                         response = {
