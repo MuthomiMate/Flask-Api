@@ -254,7 +254,7 @@ def create_app(config_name):
                                 'message': "Shoppinglist has been edited sucessfully"
                             }
                             response = {
-                                'shoppinglist': result
+                                'shoppinglist': result,
                                 'message': resultm
                             }
                             return make_response(jsonify(response)), 200
