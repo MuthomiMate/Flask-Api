@@ -29,7 +29,7 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['MAIL_SERVER']='smtp.gmail.com'
+    app.config['MAIL_HOST']='nbo2.domainskenya.co.ke'
     app.config['MAIL_PORT'] = 465
     app.config['MAIL_USERNAME'] = os.getenv('Mail_username')
     app.config['MAIL_PASSWORD'] = os.getenv('mail_password')
@@ -591,7 +591,7 @@ def create_app(config_name):
                 encrypted_password = Bcrypt().generate_password_hash(gen_password).decode()
                 user.password = encrypted_password
                 user.save()
-                msg = Message('Password Reset', sender='muthomimate@gmail.com', recipients=[email])
+                msg = Message('Password Reset', sender='shoppinglist@dannlabs.com', recipients=[email])
                 msg.body = 'You password is '+ str(gen_password) + '. Please change the password after login'
                 mail.send(msg)
                 response = {
