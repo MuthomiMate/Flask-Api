@@ -29,7 +29,7 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-    app.config['MAIL_HOST']='nbo2.domainskenya.co.ke'
+    app.config['MAIL_SERVER'] = 'nbo2.domainskenya.co.ke'
     app.config['MAIL_PORT'] = 465
     app.config['MAIL_USERNAME'] = os.getenv('Mail_username')
     app.config['MAIL_PASSWORD'] = os.getenv('mail_password')
