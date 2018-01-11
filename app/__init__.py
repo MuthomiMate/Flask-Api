@@ -87,6 +87,7 @@ def create_app(config_name):
 
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
+
                     shoppinglistexist = Shoppinglist.query.filter_by(name=request.data['name'], created_by=user_id).first()
                     if name == '':
                         response = {
@@ -95,8 +96,9 @@ def create_app(config_name):
                         return make_response(jsonify(response)), 409
 
                     if name:
-                        if re.match("[a-zA-Z0-9- .]+$", name):
-                            if not shoppinglistexist:
+                        if re.match("[a-zA-Z0-9- .]+$", name):       
+                            Aallshoppinglist = Shoppinglist.query.filter_by(created_by=user_id).all()
+                            if not Aallshoppinglist:
                                 shoppinglist = Shoppinglist(name=name, created_by=user_id)
                                 shoppinglist.save()
                                 response = jsonify({
@@ -108,10 +110,25 @@ def create_app(config_name):
 
                                 return make_response(response), 201
                             else:
-                                response = {
-                                    'message' : 'That shopping list exists'
-                                }
-                                return make_response(jsonify(response)), 400
+                                for shop in Aallshoppinglist:
+                                    namex=shop.name
+                                    print(namex)
+                                    if namex == name.lower():
+                                        response = {
+                                        'message' : 'That shopping list exists'
+                                        }
+                                        return make_response(jsonify(response)), 400
+                                    else:
+                                        shoppinglist = Shoppinglist(name=name, created_by=user_id)
+                                        shoppinglist.save()
+                                        response = jsonify({
+                                            'id': shoppinglist.id,
+                                            'name': shoppinglist.name,
+                                            'date_created': shoppinglist.date_created,
+                                            'date_modified': shoppinglist.date_modified
+                                        })
+
+                                        return make_response(response), 201
                         else:
                             response = {
                                 'message' : 'Name should not contain special characters'
@@ -150,14 +167,14 @@ def create_app(config_name):
                         response = {
                             'message': "Shopping list name does not exist"
                         }
-                        return make_response(jsonify(response)), 404
+                        return make_response(jsonify(response)), 420
                     else:
                         shoppingliss = Shoppinglist.query.filter_by(created_by=user_id).all()
                         if not shoppingliss:
                             response = jsonify({
                                 "message": "You do not have  any shopping list"
                             })
-                            return make_response(response), 200
+                            return make_response(response), 207
                         limit = int(request.args.get('limit', 10))
                         page = int(request.args.get('page', 1))
                         paginated_lists = Shoppinglist.query.filter_by(created_by=user_id).\
@@ -216,13 +233,13 @@ def create_app(config_name):
                     response = {
                         'message' : 'That shoppinglists does not exist'
                     }
-                    return make_response(jsonify(response)), 400
+                    return make_response(jsonify(response)), 419
                 shoppinglistowner = Shoppinglist.query.filter_by(id=id, created_by=user_id).first()
                 if not shoppinglistowner:
                     response = {
                         'message' : 'You do not have permission to view that shoppinglist'
                     }
-                    return make_response(jsonify(response)), 400
+                    return make_response(jsonify(response)), 418
 
                 if request.method == "DELETE":
                     # delete the shoppinglist using our delete method
@@ -306,13 +323,13 @@ def create_app(config_name):
                     response = {
                         'message' : 'That shopping list does not exist'
                     }
-                    return make_response(jsonify(response)), 400
+                    return make_response(jsonify(response)), 419
                 shoppinglist = Shoppinglist.query.filter_by(id=shoppinglist_id, created_by=user_id).first()
                 if not shoppinglist:
                     response = {
                         'message' : 'You do not have permission to view that shoppinglist'
                     }
-                    return make_response(jsonify(response)), 401
+                    return make_response(jsonify(response)), 418
 
                 if request.method == "POST":
                     name = str(request.data.get('name', ''))
@@ -324,8 +341,8 @@ def create_app(config_name):
 
                     if name:
                         if re.match("[a-zA-Z0-9- .]+$", name):
-                            shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
-                                                                                shoppinglistid=shoppinglist_id).first()
+                            shoppinglistitemexist = Shoppinglistitems.query.filter_by(shoppinglistid=shoppinglist_id).all()
+
                             if not shoppinglistitemexist:
                                 shoppinglistitem = Shoppinglistitems(name=name,
                                                                     shoppinglistid=shoppinglist_id)
@@ -339,11 +356,27 @@ def create_app(config_name):
                                 })
 
                                 return make_response(response), 201
-                            else:
-                                response = {
+                            for item in shoppinglistitemexist:
+                                namec=item.name
+                                if namec.lower() == name.lower():
+                                    response = {
                                     'message' : 'shopping item exists'
-                                }
-                                return make_response(jsonify(response)), 
+                                    }
+                                    return make_response(jsonify(response)), 400
+                                else:
+                                    shoppinglistitem = Shoppinglistitems(name=name,
+                                                                    shoppinglistid=shoppinglist_id)
+                                    shoppinglistitem.save()
+                                    response = jsonify({
+                                        'id': shoppinglistitem.id,
+                                        'name': shoppinglistitem.name,
+                                        'date_created': shoppinglistitem.date_created,
+                                        'date_modified': shoppinglistitem.date_modified,
+                                        'shoppinglistid': shoppinglist_id
+                                    })
+
+                                    return make_response(response), 201
+
                         else:
                             response = {
                                 'message' : 'Name cannot have special characters'
@@ -382,7 +415,7 @@ def create_app(config_name):
                         response = {
                             'message': "Shopping list name does not exist"
                         }
-                        return make_response(jsonify(response)), 200
+                        return make_response(jsonify(response)), 420
                     
                     if not shoppinglistsitemss:
                         response = {
@@ -452,7 +485,7 @@ def create_app(config_name):
                     response = {
                         'message': 'That item does not exist'
                     }
-                    return make_response(jsonify(response)), 400
+                    return make_response(jsonify(response)), 420
 
                 shoppinglist_idf = Shoppinglistitems.query.filter_by(id=id).first()
                 shoppinglist_id=shoppinglist_idf.shoppinglistid
@@ -463,7 +496,7 @@ def create_app(config_name):
                     response = {
                         'message' : 'You do not have permission to view the items'
                     }
-                    return make_response(jsonify(response)), 401
+                    return make_response(jsonify(response)), 418
                 
 
                 if request.method == "DELETE":
@@ -603,7 +636,7 @@ def create_app(config_name):
                 response = {
                     'message' : 'user not registered. Please register'
                 }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 422
 
 
     # import the authentication blueprint and register it on the app

@@ -65,7 +65,7 @@ class RegistrationView(MethodView):
                 response = {
                     'message': str(e)
                 }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 400
         else:
             # There is an existing user. We don't want to register users twice
             # Return a message to the user telling them that they they already exist
@@ -101,7 +101,7 @@ class LoginView(MethodView):
                 response = {
                     'message': 'Invalid email or password, Please try again'
                 }
-                return make_response(jsonify(response)), 401
+                return make_response(jsonify(response)), 400
 
         except Exception as e:
             # Create a response containing an string error message
