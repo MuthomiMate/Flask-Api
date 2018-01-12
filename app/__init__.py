@@ -421,7 +421,7 @@ def create_app(config_name):
                         response = {
                             'message' : 'No items in this shopping list'
                         }
-                        return make_response(jsonify(response)), 200
+                        return make_response(jsonify(response)), 207
                     results = []
                     limit = int(request.args.get('limit', 2))
                     page = int(request.args.get('page', 1))
