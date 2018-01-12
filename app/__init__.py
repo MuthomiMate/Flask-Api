@@ -258,31 +258,33 @@ def create_app(config_name):
                         }
                         return make_response(jsonify(response)), 400
                     if re.match("[a-zA-Z0-9- .]+$", name):
-                        shoppinglistexist = Shoppinglist.query.filter_by(name=request.data['name'], created_by=user_id).first()
-                        if not shoppinglistexist:
-                            shoppinglist.name = name
-                            shoppinglist.save()
-                            result = []
-                            result = {
-                                'id': shoppinglist.id,
-                                'name': shoppinglist.name,
-                                'date_created': shoppinglist.date_created,
-                                'date_modified': shoppinglist.date_modified,
-                                'created_by': shoppinglist.created_by
-                            }
-                            resultm = {
-                                'message': "Shoppinglist has been edited sucessfully"
-                            }
-                            response = {
-                                'shoppinglist': result,
-                                'message': resultm
-                            }
-                            return make_response(jsonify(response)), 200
-                        else:
-                            response= {
-                                'message' : 'Shoppinglist with that name exists'
-                            }
-                            return make_response(jsonify(response)), 400
+                        shoppinglistexist = Shoppinglist.query.filter_by(created_by=user_id).all()
+                        for shop in shoppinglistexist:
+                            namex = shop.name 
+                            if name.lower() != name.lower():
+                                shoppinglist.name = name
+                                shoppinglist.save()
+                                result = []
+                                result = {
+                                    'id': shoppinglist.id,
+                                    'name': shoppinglist.name,
+                                    'date_created': shoppinglist.date_created,
+                                    'date_modified': shoppinglist.date_modified,
+                                    'created_by': shoppinglist.created_by
+                                }
+                                resultm = {
+                                    'message': "Shoppinglist has been edited sucessfully"
+                                }
+                                response = {
+                                    'shoppinglist': result,
+                                    'message': resultm
+                                }
+                                return make_response(jsonify(response)), 200
+                            else:
+                                response= {
+                                    'message' : 'Shoppinglist with that name exists'
+                                }
+                                return make_response(jsonify(response)), 400
                     else:
                         response = {
                             'message' : 'Name should not have special characters'
@@ -515,25 +517,26 @@ def create_app(config_name):
                         }
                         return make_response(jsonify(response)), 400
                     if re.match("[a-zA-Z0-9- .]+$", name):
-                        shoppinglistitemexist = Shoppinglistitems.query.filter_by(name=request.data['name'],
-                                                                                shoppinglistid=shoppinglist_id).first()
-                        if not shoppinglistitemexist:
-                            shoppinglistitems.name = name
-                            shoppinglistitems.save()
+                        shoppinglistitemexist = Shoppinglistitems.query.filter_by(shoppinglistid=shoppinglist_id).all()
+                        for ite in shoppinglistitemexist:
+                            namex = ite.name
+                            if namex.lower() != name.lower():
+                                shoppinglistitems.name = name
+                                shoppinglistitems.save()
 
-                            response = {
-                                'id': shoppinglistitems.id,
-                                'name': shoppinglistitems.name,
-                                'date_created': shoppinglistitems.date_created,
-                                'date_modified': shoppinglistitems.date_modified,
-                                'shoppinglistid': shoppinglistitems.shoppinglistid
-                            }
-                            return make_response(jsonify(response)), 200
-                        else:
-                            response = {
-                                'message' : 'shopping item with that name exist'
-                            }
-                            return make_response(jsonify(response)), 409
+                                response = {
+                                    'id': shoppinglistitems.id,
+                                    'name': shoppinglistitems.name,
+                                    'date_created': shoppinglistitems.date_created,
+                                    'date_modified': shoppinglistitems.date_modified,
+                                    'shoppinglistid': shoppinglistitems.shoppinglistid
+                                }
+                                return make_response(jsonify(response)), 200
+                            else:
+                                response = {
+                                    'message' : 'shopping item with that name exist'
+                                }
+                                return make_response(jsonify(response)), 409
                     else:
                         response = {
                             'message' : 'name should not contain special characters'
