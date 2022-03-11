@@ -45,5 +45,5 @@ six==1.10.0
 SQLAlchemy==1.1.13
 urllib3==1.21.1
 virtualenv==15.1.0
-Werkzeug
+Werkzeug<2
 wrapt==1.10.11
